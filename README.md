@@ -1,6 +1,6 @@
 # CanaryDash honeypot dataset + dashboard
 
-Raw, **unredacted** logs from a class honeypot (Azure VM running OpenCanary, then Cowrie SSH/Telnet), with the local CanaryDash dashboard used to explore them.
+Raw, **unredacted** logs from a university-class honeypot (a machine put online only to be attacked and recorded) (Azure VM running OpenCanary, then Cowrie SSH/Telnet), with the local CanaryDash dashboard used to explore them.
 Data covers **2026-10-14 20:51 PDT → 2026-10-21 20:37 PDT**.
 
 > The logs contain attacker IPs, credentials, commands, malware download URLs, SHA-256 hashes and filenames, and SSH public keys that attackers tried to plant. They also show the honeypot VM's own public IP (20.98.51.91). Do not run anything you find in here.
@@ -35,7 +35,11 @@ CANARY_FULL=$PWD/unpacked CANARY_DB=$PWD/unpacked/canarydash-full.sqlite CANARY_
 - **Derived or duplicate data**: `canarydash-full.sqlite` (3.7 GB, rebuilt by `setup.sh`), `daily/` backup snapshots (copies of the same logs), and `events.jsonl`/`poller-cache` (copies of the live logs).
 - **DB-IP `.mmdb` geo databases**: the 127 MB file is over the size limit. They're free from db-ip.com (the Lite city/ASN versions).
 
+## What "adaptive personas" means
+Starting 2026-10-15 00:42 PT, the SSH/Telnet honeypot (Cowrie) shows each attacking IP address its own fake system. That can be an ARM camera, a MIPS router, an Ubuntu web server or a GPU miner, chosen every 5 minutes from what the IP did before. The same IP keeps seeing the same fake system. Bots that only infect matching hardware then go ahead and download their malware, so it can be captured. Every Cowrie session records its persona in a `cowrie.session.params` event. Details are in `docs/ADMIN_NOTES.md`.
+
 ## Docs
+- `docs/GLOSSARY.md`: every custom term, tag, field and log message explained.
 - `docs/ADMIN_NOTES.md`: architecture, config decisions, operating rules and timeline.
 - `docs/DATA_GAPS_AND_ISSUES.md`: known gaps and anomalies, checked against the data. Hourly counts are in `docs/events_per_hour_pt.csv` and charted in `docs/events_per_hour_pt.png`.
 

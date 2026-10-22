@@ -45,3 +45,42 @@ All times are Pacific (PT) unless marked Z (UTC). Secrets, account names, emails
 | 2026-10-15 → 2026-10-18 13:54 | The old Mac CanaryDash poller kept re-downloading the full logs (about 387 GB of egress, which pushed the Azure budget alert past $20). It was killed, and pulls became manual and incremental. |
 | 2026-10-19 | Pre-emptive memory restarts added to the watchdog. Restarts climbed to about 40–120 per day from 10-20 on. |
 | 2026-10-21 20:37 | Last event in this dataset (full copy taken 20:39). |
+
+## Adaptive personas (in detail)
+**Terms.** A *honeypot* is a computer put on the internet only to be attacked, so the attacks can be recorded. *OpenCanary* is a honeypot that imitates many network services (FTP, web, databases and so on) and logs each attempt. *Cowrie* imitates an SSH/Telnet login and a Linux shell, and it records the attacker's commands and downloaded files. A *persona* is the fake identity the fake shell shows: its hostname, CPU type, kernel version, BusyBox banner and certain files.
+
+**What it is.** Normally Cowrie shows every visitor the same fake machine. With adaptive personas, each attacking IP address gets the fake machine that best matches what it seems to be looking for. That IP then keeps the same persona across its later sessions.
+
+**When it was enabled.** 2026-10-15 at 00:42 PT, per `data/vm/var/log/honeypot-admin.log`. A second log line at 00:48 PT records the same change again.
+
+**Personas** (from `data/vm/opt/cowrie/personas/personas.json`):
+| id | Hostname | Looks like | Arch / kernel | Shell / BusyBox |
+|---|---|---|---|---|
+| iot-arm | IPC-HI3518 | Hi3518 ARM IP camera or DVR | armv7l, Linux 3.4.35 | /bin/sh, BusyBox v1.22.1 |
+| iot-mips | Router-MIPS | MIPS home router | mips, Linux 2.6.36 | /bin/sh, BusyBox v1.19.4 |
+| linux-server (default) | web-prod-02 | Ubuntu 22.04 web server | x86_64, 5.15.0-122 | /bin/bash |
+| miner | gpu-node-07 | x86_64 host that looks GPU-capable | x86_64, 5.15.0-105 | /bin/bash |
+
+The IoT and miner personas also add overlay files under `personas/honeyfs/<id>/` (`etc/`, `proc/`, for example a fake `/proc/cpuinfo`).
+
+**How IPs get tagged** (`personas/profiler.py`, run every 5 minutes):
+1. It reads recent Cowrie connect, login, command and download events and groups them by source IP.
+2. It scores each IP with keyword rules. Signals of a Mirai-style IoT bot are BusyBox, `enable`/`system`/`shell`, typical IoT default passwords and IoT usernames. MIPS strings point to a MIPS router. Miner signals are xmrig, nvidia-smi, `stratum+tcp` and monero. Admin-like commands count toward the server persona.
+3. It picks a persona. A MIPS score of 3 or more wins first, then a miner score of 5 or more, then an IoT score of 4 or more gives iot-arm. Anything else gets linux-server.
+4. An IP already tagged as IoT with an IoT score of 8 or more is not moved back to linux-server during a quiet period. A `pinned: true` entry is never changed.
+5. The results go in `personas/ip_profiles.json`, along with the evidence for each choice. The map size is capped, keeping pinned entries and the highest IoT/miner scores. The copy in this repo has 1,010 IPs: 666 linux-server and 344 iot-arm. One IP is pinned: 191.98.239.177, set to iot-arm.
+
+**What changes for the attacker.** Commands like `uname`, `busybox`, `hostname` and `cat /proc/cpuinfo` return the persona's values. On 2026-10-15 a check of an iot-arm session returned `uname -m` = armv7l, an ARM cpuinfo, BusyBox v1.22.1 and hostname IPC-HI3518. Each session logs a `cowrie.session.params` event with `persona=<id>` (and `arch`).
+The Cowrie source patches that apply the persona (`persona_loader.py` and changes to `shell/realm.py`, `shell/server.py`, `commands/uname.py`, `commands/busybox.py` and `shell/protocol.py`) are **not included in this repo**. They are described in `dashboard/PERSONAS.md`.
+
+**Why.** IoT botnets usually check the CPU architecture before downloading a payload built for it. A plain x86 web server makes many of them give up, while a matching fake device makes them download their malware, which gets captured (capped at 10 MB and never run).
+
+**Effect on the data.** Counts are deduplicated Cowrie events. Personas were enabled about 45 minutes after Cowrie started, so the "before" window is short, and traffic kept changing over the week. This is a correlation, not proof of cause.
+| | Before (to 10-15 00:42 PT) | After |
+|---|---|---|
+| Sessions (`session.connect`) | 286 | 233,474 |
+| Commands | 11,987 | 1,946,724 |
+| File downloads (`session.file_download`) | **0** | **106,944** |
+| `session.params` events by persona | (none) | iot-arm 201,001; linux-server 3,929 |
+
+From 10-15 00:42 PT on, the fake system an attacker sees depends on its IP. So read commands and outputs together with that session's `persona` field.
