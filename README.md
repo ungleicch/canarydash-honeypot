@@ -37,6 +37,7 @@ python3 dashboard/full/server.py 8802      # port optional, default 8802
   - a sortable, paginated table with CSV export;
   - nine example queries.
 
+  Every chart (Explore and the overview pages) has **PNG** and **Copy** buttons. They export the chart at 2x resolution on the current theme's background, with the title, active filters, PT time range and a footer.
   The current query is stored in the URL, so a link reopens the same view. It needs `./setup.sh`, which builds the indexed `unpacked/explore.sqlite`. The query endpoints (`/api/x/*`) are read-only, accept only whitelisted fields and fixed parameterized SQL, and stop any query after 15 s. This is **local querying of a static archive, not a live feed**.
 - `/explorer` is an event-by-event browser. It needs the local SQLite index: run `./setup.sh` once, which unpacks the logs into `./unpacked` and builds the index.
 - The chart and markdown libraries are vendored in `dashboard/site/vendor`, so there are no CDN requests.
