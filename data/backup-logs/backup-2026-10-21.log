@@ -1,0 +1,47 @@
+===== 2026-10-21 03:17:04 PDT daily honeypot backup start =====
+[opencanary] rsync logs
+[cowrie] rsync logs
+[cowrie] rsync tty
+[cowrie] rsync downloads -> downloads_DO_NOT_RUN
+rsync: [sender] send_files failed to open "/opt/cowrie/cowrie/var/lib/cowrie/downloads/041de4f1f393265f6070a00b700e7c20e9b915f6537f7b345f73b8d46aad2130": Permission denied (13)
+rsync: [sender] send_files failed to open "/opt/cowrie/cowrie/var/lib/cowrie/downloads/7a9da7d10aa80b0f9e2e3f9e518030c86026a636e0b6de35905e15dd4c8e3e2d": Permission denied (13)
+rsync: [sender] send_files failed to open "/opt/cowrie/cowrie/var/lib/cowrie/downloads/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": Permission denied (13)
+file has vanished: "/opt/cowrie/cowrie/var/lib/cowrie/downloads/redir_5f09436b9b3d4dfa9bef1c4226244af5"
+file has vanished: "/opt/cowrie/cowrie/var/lib/cowrie/downloads/redir_bab6a18ffe1f4b5dbdc483a9cc1693da"
+file has vanished: "/opt/cowrie/cowrie/var/lib/cowrie/downloads/redir_d17d6be6146b4580883a08c74d8e5bdb"
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1854) [generator=3.4.2]
+WARN: downloads rsync exit 23 (partial transfer, unreadable/vanished files); continuing
+downloads: removed_1byte_redir=4048 kept_files=554
+[status] querying VM
+{
+  "timestamp": "2026-10-21T03:17:27-07:00",
+  "status": "ok",
+  "warn_reasons": [],
+  "vm": {
+    "disk_used_pct": 45,
+    "inode_used_pct": 5,
+    "opencanary_logs_bytes": 304384563,
+    "opencanary_log_files": 2,
+    "cowrie_logs_bytes": 845059075,
+    "cowrie_logs_files": 14,
+    "cowrie_tty_bytes": 29558632,
+    "cowrie_tty_files": 1575,
+    "cowrie_downloads_bytes": 81864827,
+    "cowrie_downloads_files_total": 7445,
+    "cowrie_downloads_files_nonzero_or_named": 3407
+  },
+  "mac": {
+    "backup_root_bytes": 9666789376,
+    "latest_day": "2026-10-21",
+    "latest_day_path": "/Users/tommalter/CanaryBackups/daily/2026-10-21",
+    "latest_day_bytes": 1255985152,
+    "latest_day_files": 2144
+  },
+  "thresholds": {
+    "warn_vm_disk_pct": 70,
+    "warn_vm_inode_pct": 70,
+    "warn_mac_backup_bytes": 21474836480
+  },
+  "note": "Server data is never deleted by this backup. Warn when VM disk/inodes >70% or Mac CanaryBackups >20GB."
+}
+===== 2026-10-21 03:17:27 PDT daily honeypot backup done -> /Users/tommalter/CanaryBackups/daily/2026-10-21 =====

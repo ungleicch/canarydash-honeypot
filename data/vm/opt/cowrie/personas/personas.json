@@ -1,0 +1,54 @@
+{
+  "iot-arm": {
+    "hostname": "IPC-HI3518",
+    "arch": "linux-arm-lsb",
+    "kernel_name": "Linux",
+    "kernel_version": "3.4.35",
+    "kernel_build_string": "#2 Tue Mar 19 16:42:18 CST 2019",
+    "hardware_platform": "armv7l",
+    "operating_system": "GNU/Linux",
+    "busybox_version": "BusyBox v1.22.1 (2016-01-01 12:00:00 CST) multi-call binary.",
+    "honeyfs_overlay": "honeyfs/iot-arm",
+    "shell": "/bin/sh",
+    "description": "Hi3518-style ARM IP camera / DVR"
+  },
+  "iot-mips": {
+    "hostname": "Router-MIPS",
+    "arch": "linux-mips-lsb",
+    "kernel_name": "Linux",
+    "kernel_version": "2.6.36",
+    "kernel_build_string": "#1 Wed Jun 10 10:00:00 CST 2015",
+    "hardware_platform": "mips",
+    "operating_system": "GNU/Linux",
+    "busybox_version": "BusyBox v1.19.4 (2014-08-01 10:00:00 CST) multi-call binary.",
+    "honeyfs_overlay": "honeyfs/iot-mips",
+    "shell": "/bin/sh",
+    "description": "MIPS home router / CPE"
+  },
+  "linux-server": {
+    "hostname": "web-prod-02",
+    "arch": "linux-x64-lsb",
+    "kernel_name": "Linux",
+    "kernel_version": "5.15.0-122-generic",
+    "kernel_build_string": "#132-Ubuntu SMP Fri Aug 30 16:50:11 UTC 2024",
+    "hardware_platform": "x86_64",
+    "operating_system": "GNU/Linux",
+    "busybox_version": null,
+    "honeyfs_overlay": null,
+    "shell": "/bin/bash",
+    "description": "Ubuntu 22.04 web server (default)"
+  },
+  "miner": {
+    "hostname": "gpu-node-07",
+    "arch": "linux-x64-lsb",
+    "kernel_name": "Linux",
+    "kernel_version": "5.15.0-105-generic",
+    "kernel_build_string": "#115-Ubuntu SMP Mon Apr 15 09:52:04 UTC 2024",
+    "hardware_platform": "x86_64",
+    "operating_system": "GNU/Linux",
+    "busybox_version": null,
+    "honeyfs_overlay": "honeyfs/miner",
+    "shell": "/bin/bash",
+    "description": "x86_64 host that looks GPU-capable"
+  }
+}

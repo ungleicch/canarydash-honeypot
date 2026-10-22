@@ -1,0 +1,31 @@
+[honeypot]
+hostname = web-prod-02
+contents_path = /opt/cowrie/cowrie/etc/honeyfs
+txtcmds_path = /opt/cowrie/cowrie/src/cowrie/data/txtcmds
+download_limit_size = 10485760
+interactive_timeout = 300
+authentication_timeout = 120
+
+[ssh]
+enabled = true
+listen_endpoints = tcp:22:interface=0.0.0.0
+version = SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.10
+
+[telnet]
+enabled = true
+listen_endpoints = tcp:23:interface=0.0.0.0
+
+[output_jsonlog]
+enabled = true
+logfile = ${honeypot:log_path}/cowrie.json
+epoch_timestamp = false
+
+[llm]
+enabled = false
+[shell]
+kernel_name = Linux
+kernel_version = 5.15.0-122-generic
+kernel_build_string = #132-Ubuntu SMP Fri Aug 30 16:50:11 UTC 2024
+hardware_platform = x86_64
+operating_system = GNU/Linux
+arch = x86_64

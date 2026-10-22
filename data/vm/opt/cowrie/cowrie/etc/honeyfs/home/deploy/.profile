@@ -1,0 +1,2 @@
+# ~/.profile
+. "$HOME/.bashrc"

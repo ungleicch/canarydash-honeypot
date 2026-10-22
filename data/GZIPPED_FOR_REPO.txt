@@ -1,0 +1,7 @@
+./var/tmp/cowrie-canary.log
+./var/tmp/opencanary.log
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-16
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-18
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-19
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-21

@@ -1,0 +1,4 @@
+127.0.0.1 localhost
+127.0.1.1 web-prod-02.internal web-prod-02
+10.0.0.4 web-prod-02
+::1 ip6-localhost ip6-loopback

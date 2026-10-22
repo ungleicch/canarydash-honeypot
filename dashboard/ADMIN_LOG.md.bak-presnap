@@ -1,0 +1,4 @@
+2026-10-15 00:19 PT: Rate-limited 191.98.239.177 (6 new conns/hour, burst 3) on VM via iptables; reboot-persistent via /etc/cron.d/softblock-br. Only this IP affected.
+2026-10-15 00:24 PT: Extended rate limit on 191.98.239.177 to UDP (6/hour, burst 3).
+2026-10-15 00:42 PT: Adaptive per-IP Cowrie personas live (iot-arm / iot-mips / linux-server / miner). Profiler every 5m at /opt/cowrie/personas/. 191.98.239.177 pinned iot-arm (Hi3518 BusyBox). Rate limit on that IP UNCHANGED. Verified: uname -m=armv7l, ARM cpuinfo, BusyBox v1.22.1, hostname IPC-HI3518.
+2026-10-15 00:48 PDT: Enabled adaptive per-IP Cowrie personas (iot-arm, iot-mips, linux-server, miner). 191.98.239.177 pinned to iot-arm. Profiler every 5 min. Brazil rate limit unchanged.

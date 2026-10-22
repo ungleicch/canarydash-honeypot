@@ -1,0 +1,8 @@
+/dev/sda1 / ext4 rw,relatime,errors=remount-ro 0 0
+proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
+sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
+udev /dev devtmpfs rw,nosuid,relatime,size=4013140k,nr_inodes=1003285,mode=755 0 0
+tmpfs /run tmpfs rw,nosuid,nodev,noexec,relatime,size=804820k,mode=755 0 0
+tmpfs /dev/shm tmpfs rw,nosuid,nodev 0 0
+tmpfs /tmp tmpfs rw,nosuid,nodev 0 0
+/dev/sda2 /boot ext4 rw,relatime 0 0

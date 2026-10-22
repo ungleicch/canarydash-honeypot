@@ -1,0 +1,42 @@
+===== 2026-10-19 03:27:16 PDT daily honeypot backup start =====
+[opencanary] rsync logs
+[cowrie] rsync logs
+[cowrie] rsync tty
+[cowrie] rsync downloads -> downloads_DO_NOT_RUN
+rsync: [sender] send_files failed to open "/opt/cowrie/cowrie/var/lib/cowrie/downloads/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": Permission denied (13)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1854) [generator=3.4.2]
+WARN: downloads rsync exit 23 (partial transfer, unreadable/vanished files); continuing
+downloads: removed_1byte_redir=1442 kept_files=292
+[status] querying VM
+{
+  "timestamp": "2026-10-19T03:27:32-07:00",
+  "status": "ok",
+  "warn_reasons": [],
+  "vm": {
+    "disk_used_pct": 33,
+    "inode_used_pct": 5,
+    "opencanary_logs_bytes": 279808008,
+    "opencanary_log_files": 2,
+    "cowrie_logs_bytes": 278624955,
+    "cowrie_logs_files": 10,
+    "cowrie_tty_bytes": 10949087,
+    "cowrie_tty_files": 827,
+    "cowrie_downloads_bytes": 14422625,
+    "cowrie_downloads_files_total": 3674,
+    "cowrie_downloads_files_nonzero_or_named": 2231
+  },
+  "mac": {
+    "backup_root_bytes": 3455569920,
+    "latest_day": "2026-10-19",
+    "latest_day_path": "/Users/tommalter/CanaryBackups/daily/2026-10-19",
+    "latest_day_bytes": 592326656,
+    "latest_day_files": 1129
+  },
+  "thresholds": {
+    "warn_vm_disk_pct": 70,
+    "warn_vm_inode_pct": 70,
+    "warn_mac_backup_bytes": 21474836480
+  },
+  "note": "Server data is never deleted by this backup. Warn when VM disk/inodes >70% or Mac CanaryBackups >20GB."
+}
+===== 2026-10-19 03:27:32 PDT daily honeypot backup done -> /Users/tommalter/CanaryBackups/daily/2026-10-19 =====

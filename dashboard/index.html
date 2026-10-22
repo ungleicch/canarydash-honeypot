@@ -1,0 +1,332 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CanaryDash</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#090c10;--bg2:#0e1319;--card:#121820;--card2:#151c26;--line:#222b37;--line2:#2c3746;--txt:#e8ecf2;--mut:#8792a2;--dim:#5d6878;--acc:#f5b942;--good:#4fd1a5;--bad:#ff6b6b;--blu:#5aa9ff}
+*{box-sizing:border-box}html,body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#16202c 0,transparent 60%),var(--bg);color:var(--txt);font:14px/1.45 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;padding:12px 24px;background:#090c10e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px #4fd1a522}
+.node{color:var(--mut);font-size:12px}
+#ticker{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--mut);font-size:12.5px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg2);transition:opacity .25s}
+#ticker b{color:var(--txt);font-weight:600}
+#status{color:var(--dim);font-size:12px;white-space:nowrap}
+button,select,input{background:var(--card);color:var(--txt);border:1px solid var(--line2);border-radius:8px;padding:7px 11px;font:inherit;font-size:13px}
+button{cursor:pointer;transition:border-color .15s,background .15s}button:hover{border-color:var(--acc);background:var(--card2)}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0;background:transparent;color:var(--mut)}.seg button.on{background:var(--acc);color:#111;font-weight:600}
+a.out{color:var(--mut);font-size:12px;text-decoration:none}a.out:hover{color:var(--txt)}
+main{padding:20px 24px 8px;display:grid;gap:16px;grid-template-columns:repeat(12,1fr);max-width:1680px;margin:0 auto}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0;transition:border-color .15s}
+.card:hover{border-color:var(--line2)}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}.c2{grid-column:span 2}
+h2{font-size:12px;margin:0 0 12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.08em;display:flex;gap:8px;align-items:center}
+h2 .sp{flex:1}h2 small{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:500}
+.sec{grid-column:span 12;margin:10px 0 -4px;color:var(--txt);font-size:15px;font-weight:650;display:flex;align-items:center;gap:10px}.sec:after{content:"";flex:1;height:1px;background:var(--line)}
+.kpi .n{font-size:28px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi .l{color:var(--mut);font-size:12px}.kpi .t{font-size:12px;margin-top:4px;color:var(--dim)}.up{color:var(--bad)}.down{color:var(--good)}
+canvas{width:100%;display:block}
+.bars>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:5px 0 7px;position:relative;font-variant-numeric:tabular-nums;border-radius:6px}
+.bars>div:hover{background:#ffffff06}
+.bars i{position:absolute;left:0;bottom:2px;height:3px;border-radius:3px;opacity:.85}
+.bars span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bars em{color:var(--mut);font-style:normal}
+.tag{font-size:10px;background:#263142;color:var(--mut);padding:1px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
+.sub{color:var(--mut);font-size:12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12px;color:var(--mut)}.legend b,.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#tip{position:fixed;pointer-events:none;background:#06080bf2;border:1px solid var(--line2);border-radius:10px;padding:9px 11px;font-size:12px;display:none;z-index:40;min-width:150px;box-shadow:0 10px 30px #000a}
+#tip .r{display:flex;justify-content:space-between;gap:16px}#tip .h{color:var(--mut);margin-bottom:5px}
+.src{font-size:10px;padding:1px 6px;border-radius:6px;font-weight:600}.src.oc{background:#1f3a2e;color:#4fd1a5}.src.cw{background:#3a2a1a;color:#f5b942}
+.term{background:#05070a;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:12.5px;white-space:pre-wrap;word-break:break-all;max-height:360px;overflow:auto}.term .p{color:var(--good)}.term .f{color:var(--bad)}.term .t{color:var(--dim)}
+a.sess{color:var(--acc);cursor:pointer;text-decoration:none}a.sess:hover{text-decoration:underline}.ok{color:var(--good)}.no{color:var(--bad)}
+a.ip{color:var(--blu);cursor:pointer;text-decoration:none}a.ip:hover{text-decoration:underline}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--card)}tbody tr:hover td{background:#ffffff05}
+.tw{max-height:520px;overflow:auto}td.d{color:var(--mut);word-break:break-all}tr.test td{opacity:.5}
+.heat td{text-align:center;font-size:11.5px;padding:5px 3px;border:1px solid var(--bg);border-radius:3px;color:#0b0e12;font-variant-numeric:tabular-nums}
+.heat th{background:transparent;position:static;text-align:center;font-weight:500;padding:4px 3px}.heat th.rl{text-align:right;white-space:nowrap;padding-right:8px}
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}.filters #q{flex:1;min-width:220px}
+#map svg{width:100%;height:auto;display:block}#map path{stroke:#0a0d11;stroke-width:.4;transition:fill .15s}#map path:hover{stroke:var(--acc);stroke-width:1}
+.split{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--bg2);margin:6px 0 10px}.split div{height:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.stats div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px}.stats b{display:block;font-size:20px}.stats span{color:var(--mut);font-size:11.5px}
+.nc{font-size:10px;padding:1px 6px;border-radius:6px;font-weight:600;white-space:nowrap}.nc.Cloud{background:#1b2f4a;color:#5aa9ff}.nc.Hosting{background:#2e2547;color:#b48cff}.nc.Home{background:#24391c;color:#9ad14f}.nc.Unknown{background:#262c35;color:#8792a2}
+.arch{display:flex;gap:10px;flex-wrap:wrap;align-items:center;color:var(--mut);font-size:13px}.arch b{color:var(--txt)}
+.empty{color:var(--dim);padding:6px 0;font-size:13px}
+#modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-start;justify-content:center;padding:60px 20px;z-index:30;overflow:auto}
+#modal .box{background:var(--card);border:1px solid var(--line2);border-radius:16px;max-width:1000px;width:100%;padding:22px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.kv div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px}.kv span{display:block;color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+footer{color:var(--dim);font-size:12px;padding:10px 24px 28px;max-width:1680px;margin:0 auto}footer a{color:var(--mut)}
+@media(max-width:1200px){.c3{grid-column:span 6}.c4,.c5,.c7,.c8{grid-column:span 12}.c6{grid-column:span 12}.c2{grid-column:span 4}}
+@media(max-width:700px){.c2,.c3{grid-column:span 6}main{padding:12px}#ticker{display:none}}
+</style></head><body>
+<header><div class="brand"><span class="dot"></span>CanaryDash</div><span class="node">csulb-canary-1 · 20.98.51.91</span>
+<div id="ticker">Waiting for events</div>
+<div class="seg" id="range"><button data-v="h" class="on">48 hours</button><button data-v="d">30 days</button></div>
+<span id="status">Loading</span><button id="refresh">Refresh</button><a class="out" id="signout" href="/logout" style="display:none">Sign out</a></header>
+<main>
+<div class="card kpi c2"><div class="l">Events</div><div class="n" id="k-ev">0</div><div class="t" id="t-ev"></div></div>
+<div class="card kpi c2"><div class="l">Unique attackers</div><div class="n" id="k-ip">0</div><div class="t" id="t-ip"></div></div>
+<div class="card kpi c2"><div class="l">New attackers</div><div class="n" id="k-new">0</div><div class="t" id="t-new"></div></div>
+<div class="card kpi c2"><div class="l">Login attempts</div><div class="n" id="k-cred">0</div><div class="t" id="t-cred"></div></div>
+<div class="card kpi c2"><div class="l">Countries</div><div class="n" id="k-cty">0</div><div class="t" id="t-cty"></div></div>
+<div class="card kpi c2"><div class="l">All time events</div><div class="n" id="k-all">0</div><div class="t" id="t-all"></div></div>
+
+<div class="card c8"><h2>Activity by service<span class="sp"></span><small id="rl1"></small></h2><canvas id="c-svc" height="250"></canvas><div class="legend" id="l-svc"></div></div>
+<div class="card c4"><h2>Hits by service</h2><div class="bars" id="b-svc"></div></div>
+
+<div class="card c12"><h2>Admin actions<span class="sp"></span><small>things we changed on the honeypot; not attacks, not counted; dashed orange line on the activity chart</small></h2><div class="tw" id="admin"></div></div>
+<div class="sec">Where attacks come from</div>
+<div class="card c8"><h2>World map<span class="sp"></span><span class="seg" id="mapnc"><button data-v="" class="on">All</button><button data-v="Cloud">Cloud</button><button data-v="Hosting">Hosting</button><button data-v="Home">Home</button><button data-v="Unknown">Unknown</button></span><small>events per country</small></h2><div id="map"></div><div class="legend" id="l-map"></div></div>
+<div class="card c4"><h2>Top countries</h2><div class="bars" id="b-cty"></div></div>
+<div class="card c7"><h2>Attacks by country over time</h2><canvas id="c-cty" height="230"></canvas><div class="legend" id="l-cty"></div></div>
+<div class="card c5"><h2>When attacks happen<span class="sp"></span><small>hour of day by weekday, PT, all time</small></h2><div id="heat"></div></div>
+<div class="card c12"><h2>Country by service<span class="sp"></span><small>top countries and services in range</small></h2><div class="tw" id="matrix"></div></div>
+
+<div class="sec">Credentials</div>
+<div class="card c4"><h2>Top username and password combos</h2><div class="bars" id="b-combo"></div></div>
+<div class="card c4"><h2>Top usernames</h2><div class="bars" id="b-user"></div></div>
+<div class="card c4"><h2>Top passwords</h2><div class="bars" id="b-pass"></div></div>
+<div class="card c6"><h2>Password length</h2><div class="stats" id="pw-stats"></div><canvas id="c-pwlen" height="150"></canvas></div>
+<div class="card c6"><h2>Password character sets</h2><div id="pw-cs"></div></div>
+
+<div class="sec">Attacker behavior</div>
+<div class="card c4"><h2>Repeat or one time</h2><div id="repeat"></div></div>
+<div class="card c4"><h2>Services touched per IP</h2><canvas id="c-spi" height="170"></canvas><div class="sub" id="spi-note"></div></div>
+<div class="card c4"><h2>New attackers per day</h2><canvas id="c-newip" height="170"></canvas></div>
+<div class="card c12"><h2>Top attackers<span class="sp"></span><small>click an IP for details</small></h2><div class="tw" id="attackers" style="max-height:420px"></div></div>
+
+<div class="sec">Networks and probes</div>
+<div class="card c4"><h2>Cloud, hosting or home<span class="sp"></span><small>attacker IPs in range</small></h2><div id="cloud"></div></div>
+<div class="card c8"><h2>Network type over time<span class="sp"></span><small>events by Cloud / Hosting / Home / Unknown</small></h2><canvas id="c-nc" height="170"></canvas><div class="legend" id="l-nc"></div></div>
+<div class="card c4"><h2>Top networks</h2><div class="bars" id="b-net"></div></div>
+<div class="card c4"><h2>Most scanned ports</h2><div class="bars" id="b-ports"></div></div>
+<div class="card c4"><h2>HTTP paths</h2><div class="bars" id="b-path"></div></div>
+<div class="card c4"><h2>User agents</h2><div class="bars" id="b-ua"></div></div>
+<div class="card c4"><h2>SSH client versions</h2><div class="bars" id="b-sshv"></div></div>
+
+<div class="sec">Break-ins: Cowrie SSH and Telnet sessions</div>
+<div class="card kpi c2"><div class="l">Sessions</div><div class="n" id="k-cs">0</div><div class="t" id="t-cs"></div></div>
+<div class="card kpi c2"><div class="l">Successful logins</div><div class="n" id="k-cl">0</div><div class="t" id="t-cl"></div></div>
+<div class="card kpi c2"><div class="l">Commands run</div><div class="n" id="k-cc">0</div><div class="t" id="t-cc"></div></div>
+<div class="card kpi c2"><div class="l">Files downloaded</div><div class="n" id="k-cd">0</div><div class="t" id="t-cd"></div></div>
+<div class="card kpi c2"><div class="l">Avg session</div><div class="n" id="k-ca">0</div><div class="t" id="t-ca"></div></div>
+<div class="card kpi c2"><div class="l">Tunnel attempts</div><div class="n" id="k-ct">0</div><div class="t" id="t-ct"></div></div>
+<div class="card c4"><h2>Top commands</h2><div class="bars" id="b-cmd"></div></div>
+<div class="card c4"><h2>Command categories<span class="sp"></span><small>what they try after login</small></h2><div class="bars" id="b-cat"></div></div>
+<div class="card c4"><h2>Client fingerprints (HASSH)</h2><div class="bars" id="b-hassh"></div></div>
+<div class="card c12"><h2>Sessions<span class="sp"></span><small>click a session for the full timeline</small></h2><div class="filters"><select id="fsess"><option value="in">Logged in only</option><option value="cmd">With commands</option><option value="all">All sessions</option></select></div><div class="tw" id="sessions"></div></div>
+<div class="card c12"><h2>Captured downloads and uploads<span class="sp"></span><small>files are kept on the VM, never executed</small></h2><div class="tw" id="downloads"></div></div>
+
+<div class="sec">Events</div>
+<div class="card c12"><h2>Archive: older events<span class="sp"></span><small>the newest 50,000 load automatically; pull older ones in here</small></h2><div class="arch"><span id="arch-info">Loading</span><span class="sp" style="flex:1"></span><button id="arch-more">Load 10,000 older</button><label>back to <input type="date" id="arch-date"></label><button id="arch-go">Load until date</button><button id="arch-all">Load everything</button></div><div class="sub" id="arch-note" style="margin-top:6px"></div></div>
+<div class="card c12"><div class="filters"><input id="q" placeholder="Search IP, username, password, path, country, anything"><select id="fsvc"><option value="">All services</option></select><select id="fcty"><option value="">All countries</option></select><select id="fnc"><option value="">All network types</option><option>Cloud</option><option>Hosting</option><option>Home</option><option>Unknown</option></select>
+<label style="display:flex;align-items:center;gap:6px;color:var(--mut)"><input type="checkbox" id="hidetest"> Hide my tests</label></div>
+<div class="tw"><table><thead><tr><th>Time (PT)</th><th>Source</th><th>IP</th><th>Country</th><th>Network</th><th>Type</th><th>Service</th><th>Username</th><th>Password</th><th>Details</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="empty" id="more"></div></div>
+</main>
+<footer>IP geolocation by <a href="https://db-ip.com" target="_blank" rel="noopener">DB-IP</a>, licensed CC BY 4.0. Hosting hints are guessed from the network name. Map shapes from Natural Earth via world.geo.json.</footer>
+<div id="tip"></div><div id="modal"><div class="box" id="mbox"></div></div>
+<script src="/map.js"></script>
+<script>
+const NAMES={2000:"FTP login",2001:"FTP auth start",3000:"HTTP page view",3001:"HTTP login",3002:"HTTP odd method",3003:"HTTP redirect",4000:"SSH connection",4001:"SSH client version",4002:"SSH login",5000:"SMB file open",5001:"Port scan",5002:"Nmap OS scan",5003:"Nmap NULL scan",5004:"Nmap XMAS scan",5005:"Nmap FIN scan",6001:"Telnet login",6002:"Telnet connection",7001:"HTTP proxy login",8001:"MySQL login",9001:"MSSQL login",9002:"MSSQL Windows login",9003:"MySQL connection",10001:"TFTP request",11001:"NTP monlist",12001:"VNC login",13001:"SNMP request",14001:"RDP connection",15001:"SIP request",16001:"Git clone",17001:"Redis command",18001:"TCP banner",19001:"LLMNR query",20001:"MongoDB login",30001:"Cowrie connect",30002:"Cowrie login OK",30003:"Cowrie login failed",30004:"Shell command",30005:"Unknown command",30006:"File download",30007:"File upload",30008:"Client version",30009:"Key exchange",30010:"Session closed",30011:"TCP tunnel",30012:"Terminal size",30013:"Session recording",30014:"Public key offered",30015:"Session params",30016:"Env variable",30099:"Cowrie other"};
+const FAM=t=>t>=2000&&t<3000?"FTP":t>=3000&&t<4000?"HTTP":t>=4000&&t<5000?"SSH":t==5000?"SMB":t>=5001&&t<6000?"Port scan":t>=6000&&t<7000?"Telnet":t==7001?"HTTP proxy":t==8001||t==9003?"MySQL":t==9001||t==9002?"MSSQL":t==10001?"TFTP":t==11001?"NTP":t==12001?"VNC":t==13001?"SNMP":t==14001?"RDP":t==15001?"SIP":t==16001?"Git":t==17001?"Redis":t==20001?"MongoDB":"Other";
+const SVC_COL={"Port scan":"#5b6b80","SSH":"#f5b942","HTTP":"#5aa9ff","Telnet":"#ff6b6b","FTP":"#4fd1a5","Redis":"#e8685a","MySQL":"#b48cff","RDP":"#ff9f5a","VNC":"#ff7ac6","SMB":"#9ad14f","SNMP":"#37c3d6","SIP":"#d6c337","TFTP":"#7f8cff","NTP":"#c08457","MSSQL":"#a26bff","HTTP proxy":"#7ab8ff","Git":"#cfcfcf","MongoDB":"#58c26b","Other":"#3a4554"};
+const CPAL=["#f5b942","#5aa9ff","#ff6b6b","#4fd1a5","#b48cff","#ff9f5a","#ff7ac6","#9ad14f","#37c3d6","#d6c337","#7f8cff","#e8685a"];
+const hcol=k=>{let h=0;for(const c of String(k))h=(h*31+c.charCodeAt(0))>>>0;return CPAL[h%CPAL.length]};
+const svcCol=f=>SVC_COL[f]||hcol(f),ctyCol=c=>c=="Other"?"#3a4554":hcol(c);
+const NETC=["Cloud","Hosting","Home","Unknown"],NETCOL={Cloud:"#5aa9ff",Hosting:"#b48cff",Home:"#9ad14f",Unknown:"#5d6878"},NETLAB={Cloud:"Cloud provider",Hosting:"Hosting / VPS / VPN",Home:"Home / ISP / mobile",Unknown:"Unknown"};
+const CLOUD_RE=/amazon|\baws\b|google|microsoft|azure|alibaba|aliyun|tencent|oracle|digitalocean|linode|akamai|vultr|choopa|constant company|hetzner|\bovh|huawei cloud|huawei clouds|ibm|cloudflare|scaleway|upcloud|kamatera|ucloud|baidu|byteplus|bytedance|volcano/i;
+const HOST_RE=/hosting|host|server|data ?cent|datacenter|\bvps\b|colo|contabo|leaseweb|m247|dedicated|cdn|cloud|ionos|godaddy|hostinger|netcup|psychz|quadranet|sharktech|frantech|buyvm|pfcloud|aeza|stark industries|serverion|hostkey|selectel|timeweb|datacamp|zenlayer|cogent|internet utilities|global connectivity|proxy|vpn|tor exit|virtual|limestone|reliablesite|interserver|hivelocity|colocrossing|ponynet|terrahost|clouvider|ipxo|private layer|flokinet|alexhost|bl networks|heficed|worldstream|g-core|gcore|edgecenter/i;
+const HOME_RE=/telecom|telekom|broadband|cable|mobile|wireless|cellular|comcast|verizon|at&t|att-internet|charter|spectrum|\bcox\b|frontier|centurylink|lumen|vodafone|telefonica|movistar|orange|chinanet|china unicom|china mobile|unicom|viettel|vnpt|fpt telecom|airtel|reliance jio|\bjio\b|bsnl|kt corp|korea telecom|sk broadband|lg (dacom|uplus)|telmex|claro|\bvivo\b|telecom italia|\btim\b|turk ?telekom|rostelecom|mts|beeline|kyivstar|ukrtelecom|bharti|pldt|globe telecom|telkom|indosat|true internet|\btot\b|\bais\b|singtel|starhub|optus|telstra|bell canada|rogers|shaw|videotron|\bbt\b|sky broadband|virgin media|free sas|proximus|swisscom|kpn|ziggo|liberty global|\bsfr\b|bouygues|algar|oi s\.?a|copel|net servicos|\bisp\b|internet service|telephone|fibra|fiber|fibre|dsl|residential|home/i;
+function netClass(G){G=G||{};const o=(G.org||"")+" "+(G.isp||""),h=G.hint||"";if(h=="Cloud"||h=="Hosting"||h=="Home")return h;if(!G.asn&&!(G.org||"").trim())return h?"Hosting":"Unknown";if(CLOUD_RE.test(o)||/^Cloud$/i.test(h))return"Cloud";if(/Hosting|VPN|proxy|Likely hosting/i.test(h)||HOST_RE.test(o))return"Hosting";if(HOME_RE.test(o)||/^Home$/i.test(h))return"Home";return"Home"}
+const ncTag=c=>`<span class="nc ${c}" title="${esc(NETLAB[c])}">${c}</span>`;
+// Admin actions (not attacks; never counted as events). Source: VM /var/log/honeypot-admin.log + ADMIN_LOG.md
+const ADMIN=[{t:Date.parse("2026-10-15T07:19:00Z"),ip:"191.98.239.177",kind:"rate-limited",action:"Rate-limited",detail:"iptables hashlimit: max 6 new TCP conns/hour, burst 3. Persisted in /etc/cron.d/softblock-br. Reason: single Brazil bot flooding ~3,200 events."}];
+const RL=new Set(ADMIN.filter(a=>a.kind=="rate-limited").map(a=>a.ip));
+const rlTag=ip=>RL.has(ip)?'<span class="tag" style="background:#4a2a1a;color:#ff9f5a" title="Admin rate-limited this IP">rate-limited</span>':"";
+const $=id=>document.getElementById(id);let EV=[],TEST=new Set(),GEO={},GRAN="h";
+const TZ="America/Los_Angeles";
+const fmt=new Intl.DateTimeFormat("en-US",{timeZone:TZ,month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+const fmtS=new Intl.DateTimeFormat("en-US",{timeZone:TZ,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+const dayKey=new Intl.DateTimeFormat("en-CA",{timeZone:TZ});
+const partsF=new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",hour:"numeric",hour12:false});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const flag=cc=>cc&&cc.length==2?String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt())):"🏳️";
+const nf=n=>n.toLocaleString("en-US");
+function dur(s){s=Math.round(s/1000);if(s<60)return s+"s";if(s<3600)return Math.round(s/60)+"m";if(s<86400)return (s/3600).toFixed(1)+"h";return (s/86400).toFixed(1)+"d"}
+const DROP=new Set(["eventid","message","uuid","protocol","username","password","sensor"]);
+const srcTag=e=>e.cw?'<span class="src cw">Cowrie</span>':'<span class="src oc">OpenCanary</span>';
+function norm(e){const t=new Date((e.utc_time||e.local_time).replace(" ","T")+"Z").getTime(),d=e.logdata||{},G=GEO[e.src_host]||{},cw=e.node_id=="cowrie";
+ const user=cw?(d.username??""):(d.USERNAME??""),pass=cw?(d.password??""):(d.PASSWORD??(e.logtype==17001&&d.CMD=="AUTH"?d.ARGS:"")??"");
+ let det;if(cw){det=d.input!=null?"$ "+d.input:Object.entries(d).filter(([k])=>!DROP.has(k)).map(([k,v])=>k+"="+(typeof v=="object"?JSON.stringify(v):v)).join("  ")||d.message||""}else if(e.logtype==5001)det=`${d.PROTO||""} to port ${e.dst_port}, TTL ${d.TTL||""}`;else{const o={...d};delete o.USERNAME;delete o.PASSWORD;det=Object.entries(o).map(([k,v])=>k.toLowerCase()+"="+(typeof v=="object"?JSON.stringify(v):v)).join("  ")}
+ return{t,cw,sess:e.session||"",proto:e.proto||"",ip:e.src_host||"",port:String(e.dst_port),type:e.logtype,svc:NAMES[e.logtype]||("Type "+e.logtype),fam:cw?(e.proto=="telnet"?"Telnet":"SSH"):FAM(e.logtype),user:String(user),pass:String(pass),det,d,test:TEST.has(e.src_host),
+ cc:G.cc||"",country:G.country||"Unknown",city:G.city||"",asn:G.asn,org:G.org||"",hint:G.hint||"",net:G.asn?`AS${G.asn} ${G.org||""}`:"Unknown",nc:netClass(G)}}
+function count(arr,k,n=10){const m=new Map;for(const x of arr){const v=k(x);if(v===""||v==null)continue;m.set(v,(m.get(v)||0)+1)}return[...m].sort((a,b)=>b[1]-a[1]).slice(0,n)}
+function bars(id,list,o={}){const max=list[0]?.[1]||1;$(id).innerHTML=list.length?list.map(([k,v])=>`<div><span class="${o.mono===false?"":"mono"}">${o.label?o.label(k):esc(k)}${o.tag&&o.tag(k)?'<span class="tag">test</span>':""}</span><em>${nf(v)}</em><i style="width:${v/max*100}%;background:${o.color?o.color(k):"var(--acc)"}"></i></div>`).join(""):'<div class="empty">Nothing yet</div>'}
+function setupCanvas(c){const dpr=devicePixelRatio||1,W=c.clientWidth,H=+c.getAttribute("height");c.style.height=H+"px";c.width=W*dpr;c.height=H*dpr;const g=c.getContext("2d");g.scale(dpr,dpr);g.font="11px Inter,-apple-system,sans-serif";return{g,W,H}}
+function range(){const hourly=GRAN=="h",step=hourly?3600e3:864e5,n=hourly?48:30,start=Math.floor(Date.now()/step)*step-(n-1)*step;return{hourly,step,n,start}}
+const CH={};
+function axes(g,W,H,max,pl,pb){for(let k=0;k<=4;k++){const y=(H-pb)-(H-pb-10)*k/4;g.fillStyle="#1c2430";g.fillRect(pl,y,W-pl,1);g.fillStyle="#5d6878";g.fillText(nf(Math.round(max*k/4)),0,y+4)}}
+function stacked(cid,lid,evs,key,top,colorFn,labelFn){const c=$(cid),{g,W,H}=setupCanvas(c),{hourly,step,n,start}=range();const inR=evs.filter(e=>e.t>=start);
+ const tops=count(inR,key,top).map(x=>x[0]),groups=[...tops];if(inR.some(e=>!tops.includes(key(e))))groups.push("Other");
+ const B=Array.from({length:n},()=>new Array(groups.length).fill(0));for(const e of inR){const i=Math.floor((e.t-start)/step);if(i<0||i>=n)continue;let gi=tops.indexOf(key(e));if(gi<0)gi=groups.length-1;B[i][gi]++}
+ const tot=B.map(r=>r.reduce((a,b)=>a+b,0)),max=Math.max(4,...tot),pl=36,pb=20,bw=(W-pl)/n;axes(g,W,H,max,pl,pb);
+ const lab=new Intl.DateTimeFormat("en-US",hourly?{timeZone:TZ,hour:"numeric"}:{timeZone:TZ,month:"short",day:"numeric"});
+ B.forEach((r,i)=>{let y=H-pb;r.forEach((v,gi)=>{if(!v)return;const h=(H-pb-10)*v/max;g.fillStyle=colorFn(groups[gi]);g.fillRect(pl+i*bw+1.5,y-h,Math.max(1,bw-3),h-.5);y-=h});
+  if(i%(hourly?6:5)==0){g.fillStyle="#5d6878";g.fillText(lab.format(start+i*step),pl+i*bw,H-4)}});
+ for(const a of ADMIN){const x=pl+(a.t-start)/step*bw;if(x<pl||x>W)continue;g.save();g.strokeStyle="#ff9f5a";g.setLineDash([4,3]);g.beginPath();g.moveTo(x,6);g.lineTo(x,H-pb);g.stroke();g.restore();g.fillStyle="#ff9f5a";g.fillText("admin: "+a.action,Math.min(x+4,W-110),14)}
+ if(lid)$(lid).innerHTML=groups.map(x=>`<span><b style="background:${colorFn(x)}"></b>${labelFn?labelFn(x):esc(x)}</span>`).join("")||'<span>Nothing in this range</span>';
+ const tl=new Intl.DateTimeFormat("en-US",hourly?{timeZone:TZ,weekday:"short",month:"short",day:"numeric",hour:"numeric"}:{timeZone:TZ,weekday:"short",month:"short",day:"numeric"});
+ CH[cid]={rows:i=>groups.map((x,gi)=>[labelFn?labelFn(x):esc(x),B[i][gi],colorFn(x)]),title:i=>`${tl.format(start+i*step)} PT · ${nf(tot[i])} events`,n,pl,bw,ok:i=>tot[i]>0}}
+function simpleBars(cid,labels,vals,color,titleFn){const c=$(cid),{g,W,H}=setupCanvas(c),n=labels.length,max=Math.max(1,...vals),pl=36,pb=20,bw=(W-pl)/Math.max(n,1);axes(g,W,H,max,pl,pb);
+ vals.forEach((v,i)=>{const h=(H-pb-10)*v/max;g.fillStyle=color;g.fillRect(pl+i*bw+2,H-pb-h,Math.max(1,bw-4),h);const every=Math.ceil(n/10);if(i%every==0){g.fillStyle="#5d6878";g.fillText(labels[i],pl+i*bw+2,H-4)}});
+ CH[cid]={rows:i=>[["Count",vals[i],color]],title:i=>titleFn?titleFn(i):labels[i],n,pl,bw,ok:i=>true}}
+function tipMove(cid,ev){const d=CH[cid],tip=$("tip");if(!d)return;const r=$(cid).getBoundingClientRect(),i=Math.floor((ev.clientX-r.left-d.pl)/d.bw);
+ if(i<0||i>=d.n||!d.ok(i)){tip.style.display="none";return}
+ tip.innerHTML=`<div class="h">${d.title(i)}</div>`+d.rows(i).filter(x=>x[1]).map(([l,v,c])=>`<div class="r"><span><span class="sw" style="background:${c}"></span>${l}</span><span>${nf(v)}</span></div>`).join("");
+ tip.style.display="block";tip.style.left=Math.min(ev.clientX+14,innerWidth-tip.offsetWidth-8)+"px";tip.style.top=(ev.clientY+14)+"px"}
+function showTip(ev,html){const tip=$("tip");tip.innerHTML=html;tip.style.display="block";tip.style.left=Math.min(ev.clientX+14,innerWidth-tip.offsetWidth-8)+"px";tip.style.top=(ev.clientY+14)+"px"}
+const hideTip=()=>$("tip").style.display="none";
+function ramp(a){const A=[31,58,92],B=[90,169,255],C=[245,185,66];let x,y,t;if(a<.5){x=A;y=B;t=a*2}else{x=B;y=C;t=(a-.5)*2}return`rgb(${x.map((v,i)=>Math.round(v+(y[i]-v)*t)).join(",")})`}
+function heatColor(v,max){return v?ramp(.12+.88*Math.sqrt(v/max)):"#141b24"}
+function trend(cur,prev){if(!prev&&!cur)return"No change";if(!prev)return`<span class="up">New</span> vs previous`;const p=Math.round((cur-prev)/prev*100);return p==0?"Same as previous":`<span class="${p>0?"up":"down"}">${p>0?"▲":"▼"} ${Math.abs(p)}%</span> vs previous`}
+
+function render(){const hide=$("hidetest").checked,all=hide?EV.filter(e=>!e.test):EV,now=Date.now(),{start,hourly}=range();
+ const per=hourly?864e5:7*864e5,cur=all.filter(e=>e.t>now-per),prev=all.filter(e=>e.t<=now-per&&e.t>now-2*per),inR=all.filter(e=>e.t>=start);
+ const firstSeen=new Map;for(const e of all){const f=firstSeen.get(e.ip);if(f==null||e.t<f)firstSeen.set(e.ip,e.t)}
+ const ips=a=>new Set(a.map(e=>e.ip).filter(Boolean)),newIn=(a,b,c)=>[...firstSeen].filter(([ip,t])=>t>b&&t<=c).length;
+ const cred=a=>a.filter(e=>e.user||e.pass).length,ctys=a=>new Set(a.map(e=>e.country)).size,pl=hourly?"last 24h":"last 7 days";
+ $("k-ev").textContent=nf(cur.length);$("t-ev").innerHTML=pl+" · "+trend(cur.length,prev.length);
+ $("k-ip").textContent=nf(ips(cur).size);$("t-ip").innerHTML=trend(ips(cur).size,ips(prev).size);
+ const nc=newIn(0,now-per,now),np=newIn(0,now-2*per,now-per);$("k-new").textContent=nf(nc);$("t-new").innerHTML=trend(nc,np);
+ $("k-cred").textContent=nf(cred(cur));$("t-cred").innerHTML=trend(cred(cur),cred(prev));
+ $("k-cty").textContent=ctys(cur);$("t-cty").innerHTML=trend(ctys(cur),ctys(prev));
+ $("k-all").textContent=nf(all.length);$("t-all").textContent=nf(ips(all).size)+" IPs since the start";
+ $("rl1").textContent=hourly?"per hour, last 48 hours, PT":"per day, last 30 days, PT";
+ stacked("c-svc","l-svc",all,e=>e.fam,9,svcCol);
+ bars("b-svc",count(inR,e=>e.fam,12),{color:svcCol,mono:false});
+ const cl=c=>{const e=all.find(x=>x.country==c);return(e?flag(e.cc)+" ":"")+esc(c)};
+ stacked("c-cty","l-cty",all,e=>e.country,7,ctyCol,cl);
+ bars("b-cty",count(inR,e=>e.country,10),{label:cl,color:ctyCol,mono:false});
+ drawMap(inR);drawHeat(all);drawMatrix(inR);
+ // credentials
+ const cr=inR.filter(e=>e.user||e.pass);
+ bars("b-combo",count(cr,e=>(e.user||"(blank)")+" : "+(e.pass||"(blank)"),10),{color:()=>"#ff6b6b"});
+ bars("b-user",count(cr,e=>e.user,10),{color:()=>"#f5b942"});bars("b-pass",count(cr,e=>e.pass,10),{color:()=>"#b48cff"});
+ const pws=cr.map(e=>e.pass).filter(Boolean),L=pws.map(p=>p.length),avg=L.length?(L.reduce((a,b)=>a+b,0)/L.length).toFixed(1):"0",uniq=new Set(pws).size;
+ $("pw-stats").innerHTML=`<div><b>${nf(pws.length)}</b><span>passwords tried</span></div><div><b>${nf(uniq)}</b><span>unique</span></div><div><b>${avg}</b><span>average length</span></div>`;
+ const lens=Array.from({length:21},(_,i)=>i),lc=lens.map(i=>L.filter(x=>i==20?x>=20:x==i).length);simpleBars("c-pwlen",lens.map(i=>i==20?"20+":String(i)),lc,"#b48cff",i=>`Length ${i==20?"20 or more":i}`);
+ const cs=[["Digits only",p=>/^\d+$/.test(p)],["Lowercase only",p=>/^[a-z]+$/.test(p)],["Letters only",p=>/^[A-Za-z]+$/.test(p)&&/[A-Z]/.test(p)],["Letters and digits",p=>/^[A-Za-z0-9]+$/.test(p)&&/\d/.test(p)&&/[A-Za-z]/.test(p)],["Has symbols",p=>/[^A-Za-z0-9]/.test(p)]];
+ const csc=cs.map(([n,f])=>[n,pws.filter(f).length]);const csm=Math.max(1,...csc.map(x=>x[1]));
+ $("pw-cs").innerHTML=pws.length?`<div class="bars">${csc.map(([n,v])=>`<div><span>${n}</span><em>${nf(v)} · ${Math.round(v/pws.length*100)}%</em><i style="width:${v/csm*100}%;background:#b48cff"></i></div>`).join("")}</div><div class="sub" style="margin-top:8px">${Math.round(pws.filter(p=>p.length<=8).length/pws.length*100)}% are 8 characters or shorter.</div>`:'<div class="empty">No passwords yet</div>';
+ // behavior
+ const per_ip=new Map;for(const e of all){if(!e.ip)continue;let r=per_ip.get(e.ip);if(!r){r={ip:e.ip,n:0,first:e.t,last:e.t,svcs:new Set,days:new Set,creds:0};per_ip.set(e.ip,r)}r.n++;r.first=Math.min(r.first,e.t);r.last=Math.max(r.last,e.t);r.svcs.add(e.fam);r.days.add(dayKey.format(e.t));if(e.user||e.pass)r.creds++}
+ const P=[...per_ip.values()],rep=P.filter(r=>r.days.size>1).length,one=P.filter(r=>r.n==1).length,mid=P.length-rep-one;
+ const pc=x=>P.length?Math.round(x/P.length*100):0;
+ $("repeat").innerHTML=`<div class="split"><div style="width:${pc(rep)}%;background:#ff6b6b"></div><div style="width:${pc(mid)}%;background:#f5b942"></div><div style="width:${pc(one)}%;background:#4fd1a5"></div></div>
+ <div class="bars"><div><span><span class="sw" style="background:#ff6b6b"></span>Came back on another day</span><em>${rep} · ${pc(rep)}%</em></div><div><span><span class="sw" style="background:#f5b942"></span>Several hits in one day</span><em>${mid} · ${pc(mid)}%</em></div><div><span><span class="sw" style="background:#4fd1a5"></span>Single hit</span><em>${one} · ${pc(one)}%</em></div></div>
+ <div class="sub" style="margin-top:6px">Median activity span: ${P.length?dur(P.map(r=>r.last-r.first).sort((a,b)=>a-b)[Math.floor(P.length/2)]):"0s"}</div>`;
+ const sp=[1,2,3,4,5,6].map(k=>P.filter(r=>k==6?r.svcs.size>=6:r.svcs.size==k).length);simpleBars("c-spi",["1","2","3","4","5","6+"],sp,"#5aa9ff",i=>`${i==5?"6 or more":i+1} services`);
+ $("spi-note").textContent=`${P.filter(r=>r.svcs.size>=3).length} IPs touched 3 or more services (multi protocol scanners).`;
+ const days=[];for(let i=29;i>=0;i--)days.push(dayKey.format(now-i*864e5));const nd=days.map(d=>[...firstSeen.values()].filter(t=>dayKey.format(t)==d).length);
+ simpleBars("c-newip",days.map(d=>d.slice(5).replace("-","/")),nd,"#4fd1a5",i=>days[i]);
+ const topA=P.sort((a,b)=>b.n-a.n).slice(0,25);
+ $("attackers").innerHTML=`<table><thead><tr><th>IP</th><th>Country</th><th>Network</th><th>Type</th><th>Events</th><th>Services</th><th>Logins</th><th>First seen</th><th>Last seen</th><th>Span</th></tr></thead><tbody>${topA.map(r=>{const G=GEO[r.ip]||{};return`<tr class="${TEST.has(r.ip)?"test":""}"><td class="mono"><a class="ip" data-ip="${esc(r.ip)}">${esc(r.ip)}</a>${TEST.has(r.ip)?'<span class="tag">test</span>':""}${rlTag(r.ip)}</td><td>${flag(G.cc)} ${esc(G.country||"Unknown")}</td><td>${G.asn?"AS"+G.asn+" ":""}${esc(G.org||"")}${G.hint?'<div class="sub">'+esc(G.hint)+"</div>":""}</td><td>${ncTag(netClass(G))}</td><td>${nf(r.n)}</td><td>${[...r.svcs].map(s=>`<span class="sw" title="${esc(s)}" style="background:${svcCol(s)}"></span>`).join("")} <span class="sub">${r.svcs.size}</span></td><td>${r.creds}</td><td>${fmtS.format(r.first)}</td><td>${fmtS.format(r.last)}</td><td>${dur(r.last-r.first)}</td></tr>`}).join("")}</tbody></table>`;
+ // networks
+ const ipR=[...ips(inR)],ncC={Cloud:0,Hosting:0,Home:0,Unknown:0},ncE={Cloud:0,Hosting:0,Home:0,Unknown:0};for(const ip of ipR)ncC[netClass(GEO[ip])]++;for(const e of inR)if(e.ip)ncE[e.nc]++;const nT=ipR.length||1,eT=inR.filter(e=>e.ip).length||1;
+ $("cloud").innerHTML=`<div class="split">${NETC.map(c=>`<div title="${c}" style="width:${ncC[c]/nT*100}%;background:${NETCOL[c]}"></div>`).join("")}</div>
+ <div class="bars">${NETC.map(c=>`<div><span><span class="sw" style="background:${NETCOL[c]}"></span><b>${c}</b> <span class="sub">${esc(NETLAB[c])}</span></span><em>${nf(ncC[c])} IPs · ${Math.round(ncC[c]/nT*100)}% · ${nf(ncE[c])} events</em></div>`).join("")}</div>
+ <div class="sub" style="margin-top:6px">From the ASN name plus ip-api hosting/proxy flags. Cloud = big public clouds (AWS, Azure, Google, Alibaba, Tencent, DigitalOcean…), Hosting = VPS/datacenter/VPN, Home = consumer ISPs and mobile. Heuristic, so treat it as a rough split.</div>`;
+ stacked("c-nc","l-nc",all,e=>e.nc,4,c=>NETCOL[c]||"#3a4554",c=>c=="Other"?"Other":NETLAB[c]||c);
+ bars("b-net",count(inR,e=>e.net,10),{color:k=>hcol(k)});
+ bars("b-ports",count(inR.filter(e=>e.type==5001),e=>e.port,10),{color:()=>"#5b6b80",label:p=>esc(p)+` <span class="sub">${esc(PORTN[p]||"")}</span>`});
+ bars("b-path",count(inR.filter(e=>e.fam=="HTTP"),e=>e.d.PATH,10),{color:()=>"#5aa9ff"});
+ bars("b-ua",count(inR.filter(e=>e.d.USERAGENT),e=>e.d.USERAGENT,8),{color:()=>"#7f8cff"});
+ bars("b-sshv",count(inR.filter(e=>e.type==4001||e.type==30008),e=>e.type==4001?e.d.REMOTEVERSION:e.d.version,8),{color:()=>"#f5b942"});
+ $("admin").innerHTML=`<table><thead><tr><th>Time (PT)</th><th>Action</th><th>Target</th><th>Details</th><th>Events from target (loaded)</th><th>Since action</th></tr></thead><tbody>${ADMIN.slice().sort((a,b)=>b.t-a.t).map(a=>{const ev=EV.filter(e=>e.ip==a.ip);return`<tr><td>${fmt.format(a.t)}</td><td><span class="tag" style="background:#4a2a1a;color:#ff9f5a">${esc(a.action)}</span></td><td class="mono"><a class="ip" data-ip="${esc(a.ip)}">${esc(a.ip)}</a></td><td class="d">${esc(a.detail)}</td><td>${nf(ev.length)}</td><td>${nf(ev.filter(e=>e.t>=a.t).length)}</td></tr>`}).join("")}</tbody></table>`;
+ renderCowrie(all,inR);renderTable(all)}
+const PORTN={"21":"FTP","22":"SSH","23":"Telnet","25":"SMTP","53":"DNS","80":"HTTP","110":"POP3","123":"NTP","135":"RPC","139":"NetBIOS","143":"IMAP","161":"SNMP","443":"HTTPS","445":"SMB","1433":"MSSQL","1723":"PPTP","2375":"Docker","3306":"MySQL","3389":"RDP","5060":"SIP","5432":"Postgres","5900":"VNC","6379":"Redis","8080":"HTTP alt","8443":"HTTPS alt","9200":"Elastic","27017":"MongoDB"};
+let MAPNC="";function drawMap(inR0){const W=window.WORLD,inR=MAPNC?inR0.filter(e=>e.nc==MAPNC):inR0;if(!W){$("map").innerHTML='<div class="empty">Map data missing</div>';return}
+ const c=new Map;for(const e of inR)if(e.cc)c.set(e.cc,(c.get(e.cc)||0)+1);const max=Math.max(1,...c.values());
+ const col=v=>v?ramp(.12+.88*Math.sqrt(v/max)):"#1a222d";
+ $("map").innerHTML=`<svg viewBox="0 15 1000 400" preserveAspectRatio="xMidYMid meet">${Object.entries(W).map(([cc,d])=>`<path data-cc="${cc}" d="${d}" fill="${col(c.get(cc)||0)}"/>`).join("")}</svg>`;
+ $("map").onmousemove=ev=>{const p=ev.target.closest("path");if(!p){hideTip();return}const cc=p.dataset.cc,e=inR.find(x=>x.cc==cc);const bd={};for(const x of inR0)if(x.cc==cc)bd[x.nc]=(bd[x.nc]||0)+1;showTip(ev,`<div class="h">${flag(cc)} ${esc(e?e.country:cc)}${MAPNC?" · "+MAPNC:""}</div><div class="r"><span>Events</span><span>${nf(c.get(cc)||0)}</span></div>`+NETC.filter(k=>bd[k]).map(k=>`<div class="r"><span><span class="sw" style="background:${NETCOL[k]}"></span>${k}</span><span>${nf(bd[k])}</span></div>`).join(""))};$("map").onmouseleave=hideTip;
+ $("l-map").innerHTML=`<span>Fewer</span>${[0.05,.2,.45,.7,1].map(f=>`<span><b style="background:${col(f*max)};margin:0"></b></span>`).join("")}<span>More</span><span style="margin-left:auto">${c.size} countries in range${MAPNC?" · "+MAPNC+" networks only":""}</span>`}
+function drawHeat(all){const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],M=days.map(()=>new Array(24).fill(0));
+ for(const e of all){const p=partsF.formatToParts(e.t),wd=p.find(x=>x.type=="weekday").value,h=+p.find(x=>x.type=="hour").value%24;M[days.indexOf(wd)][h]++}
+ const max=Math.max(1,...M.flat());
+ $("heat").innerHTML=`<table class="heat"><thead><tr><th></th>${Array.from({length:24},(_,h)=>`<th>${h%3==0?h:""}</th>`).join("")}</tr></thead><tbody>${M.map((r,i)=>`<tr><th class="rl">${days[i]}</th>${r.map((v,h)=>`<td data-t="${days[i]} ${h}:00, ${v} events" style="background:${heatColor(v,max)}">${v&&v/max>.5?v:""}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+ $("heat").onmousemove=ev=>{const td=ev.target.closest("td");td?showTip(ev,esc(td.dataset.t)):hideTip()};$("heat").onmouseleave=hideTip}
+function drawMatrix(inR){const C=count(inR,e=>e.country,10).map(x=>x[0]),S=count(inR,e=>e.fam,9).map(x=>x[0]);if(!C.length){$("matrix").innerHTML='<div class="empty">Nothing in this range</div>';return}
+ const M=new Map;for(const e of inR){const k=e.country+"|"+e.fam;M.set(k,(M.get(k)||0)+1)}const max=Math.max(1,...M.values());
+ $("matrix").innerHTML=`<table class="heat"><thead><tr><th></th>${S.map(s=>`<th><span class="sw" style="background:${svcCol(s)}"></span>${esc(s)}</th>`).join("")}<th>Total</th></tr></thead><tbody>${C.map(c=>{const e=inR.find(x=>x.country==c);let t=0;return`<tr><th class="rl">${flag(e&&e.cc)} ${esc(c)}</th>${S.map(s=>{const v=M.get(c+"|"+s)||0;t+=v;return`<td style="background:${heatColor(v,max)};color:${v/max>.6?"#0b0e12":"#e8ecf2"}">${v||""}</td>`}).join("")}<td style="background:transparent;color:var(--txt)">${t}</td></tr>`}).join("")}</tbody></table>`}
+function renderTable(all){const svcs=[...new Set(EV.map(e=>e.svc))].sort(),sel=$("fsvc"),cur=sel.value;sel.innerHTML='<option value="">All services</option>'+svcs.map(s=>`<option${s==cur?" selected":""}>${esc(s)}</option>`).join("");
+ const ct=[...new Set(EV.map(e=>e.country))].sort(),cs=$("fcty"),cc=cs.value;cs.innerHTML='<option value="">All countries</option>'+ct.map(c=>`<option${c==cc?" selected":""}>${esc(c)}</option>`).join("");
+ const q=$("q").value.toLowerCase(),fs=sel.value,fc=cs.value,fn=$("fnc").value;const rows=all.filter(e=>(!fs||e.svc==fs)&&(!fc||e.country==fc)&&(!fn||e.nc==fn)&&(!q||(e.ip+" "+e.svc+" "+e.user+" "+e.pass+" "+e.det+" "+e.port+" "+e.country+" "+e.city+" "+e.net+" "+e.nc).toLowerCase().includes(q))).sort((a,b)=>b.t-a.t);
+ $("rows").innerHTML=rows.slice(0,500).map(e=>`<tr class="${e.test?"test":""}"><td>${fmt.format(e.t)}</td><td>${srcTag(e)}</td><td class="mono"><a class="ip" data-ip="${esc(e.ip)}">${esc(e.ip)}</a>${e.test?'<span class="tag">test</span>':""}${rlTag(e.ip)}</td><td>${flag(e.cc)} ${esc(e.country)}${e.city?'<div class="sub">'+esc(e.city)+"</div>":""}</td><td>${esc(e.net)}${e.hint?'<div class="sub">'+esc(e.hint)+"</div>":""}</td><td>${ncTag(e.nc)}</td><td><span class="sw" style="background:${svcCol(e.fam)}"></span>${esc(e.svc)} <span class="sub">${esc(e.port)}</span></td><td class="mono">${esc(e.user)}</td><td class="mono">${esc(e.pass)}</td><td class="d mono">${esc(e.det)}</td></tr>`).join("");
+ $("more").textContent=rows.length>500?`Showing the newest 500 of ${nf(rows.length)} matches`:(rows.length?"":"No events match")}
+let tick=0;function ticker(){const l=EV.filter(e=>!e.test).sort((a,b)=>b.t-a.t).slice(0,12);if(!l.length)return;const e=l[tick++%l.length],t=$("ticker");t.style.opacity=0;
+ setTimeout(()=>{t.innerHTML=`<b>${fmtS.format(e.t)}</b> · ${flag(e.cc)} <span class="mono">${esc(e.ip)}</span> · ${esc(e.svc)}${e.user||e.pass?` · <span class="mono">${esc(e.user)}${e.pass?" / "+esc(e.pass):""}</span>`:e.d.PATH?` · <span class="mono">${esc(e.d.PATH)}</span>`:""}`;t.style.opacity=1},250)}
+function showIP(ip){const evs=EV.filter(e=>e.ip==ip).sort((a,b)=>b.t-a.t),G=GEO[ip]||{};if(!evs.length)return;
+ const svc=count(evs,e=>e.svc+" · "+e.port,20),u=count(evs,e=>e.user,8),p=count(evs,e=>e.pass,8);
+ $("mbox").innerHTML=`<h2 style="font-size:17px;color:var(--txt);text-transform:none;letter-spacing:0"><span class="mono" style="font-size:16px">${esc(ip)}</span>${TEST.has(ip)?'<span class="tag">test</span>':""}${rlTag(ip)}<span class="sp"></span><button id="mclose">Close</button></h2>
+ <div class="sub">${flag(G.cc)} ${esc(G.country||"Unknown")}${G.city?", "+esc(G.city):""} · ${G.asn?"AS"+G.asn+" ":""}${esc(G.org||"")}${G.hint?" · "+esc(G.hint):""} · ${ncTag(netClass(G))}</div>
+ <div class="kv"><div><span>Events</span>${evs.length}</div><div><span>First seen</span>${fmt.format(evs[evs.length-1].t)}</div><div><span>Last seen</span>${fmt.format(evs[0].t)}</div><div><span>Services hit</span>${new Set(evs.map(e=>e.fam)).size}</div></div>
+ <div class="sub" style="margin-bottom:10px">${svc.map(([k,v])=>esc(k)+" ("+v+")").join(" · ")}${u.length?"<br>Usernames: "+u.map(x=>esc(x[0])).join(", "):""}${p.length?"<br>Passwords: "+p.map(x=>esc(x[0])).join(", "):""}</div>
+ <div class="tw" style="max-height:380px"><table><thead><tr><th>Time (PT)</th><th>Service</th><th>Username</th><th>Password</th><th>Details</th></tr></thead><tbody>${evs.slice(0,500).map(e=>`<tr><td>${fmt.format(e.t)}</td><td><span class="sw" style="background:${svcCol(e.fam)}"></span>${esc(e.svc)} <span class="sub">${esc(e.port)}</span></td><td class="mono">${esc(e.user)}</td><td class="mono">${esc(e.pass)}</td><td class="d mono">${esc(e.det)}</td></tr>`).join("")}</tbody></table></div>`;
+ $("modal").style.display="flex";$("mclose").onclick=()=>$("modal").style.display="none"}
+
+const CATS=[["Recon: system info",/^(uname|cat \/proc|lscpu|nproc|free|df|uptime|hostname|whoami|id|w|last|top|ps)\b/],["Recon: files and users",/^(ls|cat|pwd|find|cd|head|tail|grep)\b/],["Download tools",/(wget|curl|tftp|ftpget|scp|busybox wget)/],["Persistence (keys, cron)",/(authorized_keys|crontab|\/etc\/rc|systemctl|chattr)/],["Account changes",/(passwd|useradd|usermod|chpasswd)/],["Run or chmod payload",/(chmod|\.\/|sh |bash |perl |python)/],["Crypto miner signs",/(xmrig|miner|stratum|nicehash|c3pool|\.x86)/i],["Cleanup / hide",/(history -c|rm -rf|unset HISTFILE|kill)/],["Echo / busybox probes",/^(echo|busybox|enable|system|shell|sh$)/]];
+const catOf=c=>{const x=c.trim();for(const[n,r]of CATS)if(r.test(x))return n;return"Other"};
+let SESS=new Map;
+function buildSess(all){SESS=new Map;for(const e of all){if(!e.cw||!e.sess)continue;let s=SESS.get(e.sess);if(!s){s={id:e.sess,ip:e.ip,proto:e.fam,start:e.t,end:e.t,ev:[],ok:false,fails:0,user:"",pass:"",cmds:[],dl:[],ver:"",hassh:"",dur:null,tty:"",tun:0,test:e.test,cc:e.cc,country:e.country,net:e.net,port:e.port};SESS.set(e.sess,s)}
+ s.ev.push(e);s.start=Math.min(s.start,e.t);s.end=Math.max(s.end,e.t);const d=e.d;
+ if(e.type==30002){s.ok=true;s.user=e.user;s.pass=e.pass}else if(e.type==30003){s.fails++;if(!s.ok){s.user=e.user;s.pass=e.pass}}
+ else if(e.type==30004||e.type==30005)s.cmds.push({t:e.t,c:d.input||"",bad:e.type==30005});else if(e.type==30006||e.type==30007)s.dl.push({t:e.t,up:e.type==30007,...d});
+ else if(e.type==30008)s.ver=d.version||"";else if(e.type==30009)s.hassh=d.hassh||"";else if(e.type==30010&&d.duration!=null)s.dur=+d.duration;else if(e.type==30013)s.tty=d.ttylog||"";else if(e.type==30011)s.tun++}
+ for(const s of SESS.values()){s.ev.sort((a,b)=>a.t-b.t);s.cmds.sort((a,b)=>a.t-b.t);if(s.dur==null)s.dur=(s.end-s.start)/1000}}
+function renderCowrie(all,inR){buildSess(all);const{start}=range(),S=[...SESS.values()].filter(s=>s.end>=start),cw=inR.filter(e=>e.cw);
+ const lin=S.filter(s=>s.ok),cmds=S.flatMap(s=>s.cmds),dls=S.flatMap(s=>s.dl.map(x=>({...x,s})));
+ $("k-cs").textContent=nf(S.length);$("t-cs").textContent=nf(new Set(S.map(s=>s.ip)).size)+" IPs in range";
+ $("k-cl").textContent=nf(lin.length);$("t-cl").textContent=S.length?Math.round(lin.length/S.length*100)+"% of sessions":"";
+ $("k-cc").textContent=nf(cmds.length);$("t-cc").textContent=nf(new Set(cmds.map(c=>c.c)).size)+" unique";
+ $("k-cd").textContent=nf(dls.length);$("t-cd").textContent=nf(new Set(dls.map(x=>x.shasum).filter(Boolean)).size)+" unique files";
+ const durs=S.map(s=>s.dur).filter(x=>x!=null);$("k-ca").textContent=durs.length?dur(durs.reduce((a,b)=>a+b,0)/durs.length*1000):"0s";$("t-ca").textContent=lin.length?"logged in: "+dur(lin.reduce((a,s)=>a+s.dur,0)/lin.length*1000):"";
+ $("k-ct").textContent=nf(S.reduce((a,s)=>a+s.tun,0));$("t-ct").textContent="proxy / port forward tries";
+ bars("b-cmd",count(cmds,c=>c.c.length>70?c.c.slice(0,70)+"…":c.c,12),{color:()=>"#f5b942"});
+ bars("b-cat",count(cmds,c=>catOf(c.c),10),{color:k=>hcol(k),mono:false});
+ bars("b-hassh",count(S.filter(s=>s.hassh),s=>s.hassh.slice(0,16)+"… "+(s.ver||""),8),{color:()=>"#7f8cff"});
+ const f=$("fsess").value,rows=S.filter(s=>f=="all"||(f=="in"?s.ok:s.cmds.length)).sort((a,b)=>b.start-a.start).slice(0,400);
+ $("sessions").innerHTML=rows.length?`<table><thead><tr><th>Start (PT)</th><th>Session</th><th>IP</th><th>Country</th><th>Type</th><th>Proto</th><th>Client</th><th>Login</th><th>Duration</th><th>Cmds</th><th>Files</th><th>First commands</th></tr></thead><tbody>${rows.map(s=>`<tr class="${s.test?"test":""}" data-sess="${esc(s.id)}" style="cursor:pointer"><td>${fmt.format(s.start)}</td><td class="mono"><a class="sess">${esc(s.id)}</a></td><td class="mono">${esc(s.ip)}${s.test?'<span class="tag">test</span>':""}${rlTag(s.ip)}</td><td>${flag(s.cc)} ${esc(s.country)}</td><td>${ncTag(netClass(GEO[s.ip]))}</td><td>${esc(s.proto)}</td><td class="mono sub">${esc(s.ver)}</td><td class="mono">${s.ok?'<span class="ok">✔</span>':s.fails?'<span class="no">✘</span>':"–"} ${esc(s.user)}${s.pass?" / "+esc(s.pass):""}${s.fails?` <span class="sub">${s.fails} fails</span>`:""}</td><td>${dur(s.dur*1000)}</td><td>${s.cmds.length}</td><td>${s.dl.length}</td><td class="d mono">${esc(s.cmds.slice(0,3).map(c=>c.c).join(" ; ").slice(0,140))}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No Cowrie sessions in this range yet</div>';
+ $("downloads").innerHTML=dls.length?`<table><thead><tr><th>Time (PT)</th><th>Dir</th><th>IP</th><th>URL / file</th><th>SHA-256</th><th>Size</th><th>Session</th></tr></thead><tbody>${dls.sort((a,b)=>b.t-a.t).slice(0,300).map(x=>`<tr><td>${fmt.format(x.t)}</td><td>${x.up?"upload":"download"}${x.eventid&&x.eventid.endsWith("failed")?' <span class="no">failed</span>':""}</td><td class="mono">${esc(x.s.ip)}${rlTag(x.s.ip)}</td><td class="d mono">${esc(x.url||x.filename||x.destfile||"")}</td><td class="d mono">${esc(x.shasum||"")}</td><td>${x.size!=null?nf(+x.size)+" B":""}</td><td class="mono"><a class="sess" data-sess="${esc(x.s.id)}">${esc(x.s.id)}</a></td></tr>`).join("")}</tbody></table>`:'<div class="empty">No files captured yet</div>'}
+function showSess(id){const s=SESS.get(id);if(!s)return;const G=GEO[s.ip]||{};
+ const term=s.cmds.length?s.cmds.map(c=>`<span class="t">[${fmt.format(c.t)}]</span> <span class="p">${esc(s.user||"root")}@web-prod-02:~#</span> <span class="${c.bad?"f":""}">${esc(c.c)}</span>${c.bad?' <span class="f">(command not found)</span>':""}`).join("\n"):'<span class="t">No commands were run in this session.</span>';
+ $("mbox").innerHTML=`<h2 style="font-size:17px;color:var(--txt);text-transform:none;letter-spacing:0"><span class="src cw">Cowrie</span> Session <span class="mono">${esc(s.id)}</span><span class="sp"></span><button id="mclose">Close</button></h2>
+ <div class="sub"><a class="ip mono" data-ip="${esc(s.ip)}">${esc(s.ip)}</a> · ${flag(G.cc)} ${esc(G.country||"Unknown")}${G.city?", "+esc(G.city):""} · ${G.asn?"AS"+G.asn+" ":""}${esc(G.org||"")}${G.hint?" · "+esc(G.hint):""}</div>
+ <div class="kv"><div><span>Protocol</span>${esc(s.proto)} :${esc(s.port)}</div><div><span>Start</span>${fmt.format(s.start)}</div><div><span>Duration</span>${dur(s.dur*1000)}</div><div><span>Login</span>${s.ok?'<span class="ok">Success</span>':s.fails?'<span class="no">Failed</span>':'<span class="sub">No login attempt</span>'} <span class="mono">${esc(s.user)}${s.pass?" / "+esc(s.pass):""}</span></div>
+ <div><span>Failed tries</span>${s.fails}</div><div><span>Commands</span>${s.cmds.length}</div><div><span>Files</span>${s.dl.length}</div><div><span>Tunnel tries</span>${s.tun}</div></div>
+ <div class="sub" style="margin-bottom:6px">Client: <span class="mono">${esc(s.ver||"unknown")}</span>${s.hassh?` · HASSH <span class="mono">${esc(s.hassh)}</span>`:""}${s.tty?` · recording <span class="mono">${esc(s.tty)}</span> (replay on VM with playlog)`:""}</div>
+ <h2 style="margin-top:14px">Shell transcript</h2><div class="term">${term}</div>
+ ${s.dl.length?`<h2 style="margin-top:14px">Files</h2><table><tbody>${s.dl.map(x=>`<tr><td>${fmt.format(x.t)}</td><td>${x.up?"upload":"download"}</td><td class="d mono">${esc(x.url||x.filename||"")}<div class="sub">${esc(x.shasum||"")}</div></td><td>${x.size!=null?nf(+x.size)+" B":""}</td></tr>`).join("")}</tbody></table>`:""}
+ <h2 style="margin-top:14px">Every event (${s.ev.length})</h2><div class="tw" style="max-height:320px"><table><thead><tr><th>Time (PT)</th><th>Event</th><th>Details</th></tr></thead><tbody>${s.ev.map(e=>`<tr><td>${fmt.format(e.t)}</td><td>${esc(e.svc)}</td><td class="d mono">${esc(e.user?e.user+" / "+e.pass+"  ":"")}${esc(e.det)}</td></tr>`).join("")}</tbody></table></div>`;
+ $("modal").style.display="flex";$("mclose").onclick=()=>$("modal").style.display="none"}
+const RAW=new Map;let META={},OLDEST=null,NEWEST=null,LOADING=false;
+function keyOf(e){return e._id||((e.utc_time||e.local_time||"")+"|"+(e.src_host||"")+"|"+e.logtype+"|"+(e.session||"")+"|"+JSON.stringify(e.logdata||{}).slice(0,200))}
+function merge(r){for(const e of r.events||[])RAW.set(keyOf(e),e);Object.assign(GEO,r.geo||{});if(r.oldest_ts!=null&&(OLDEST==null||r.oldest_ts<OLDEST))OLDEST=r.oldest_ts;if(r.newest_ts!=null&&(NEWEST==null||r.newest_ts>NEWEST))NEWEST=r.newest_ts;if(r.total!=null)META={total:r.total,lo:r.db_oldest_ts,hi:r.db_newest_ts}}
+function rebuild(){EV=[...RAW.values()].filter(e=>+e.logtype>=2000&&!(e.node_id=="cowrie"&&+e.logtype<30000)).map(norm);render();archInfo()}
+const tsMs=v=>v==null?null:(v>1e12?v:v*1000);
+function archInfo(){const fullyLoaded=META.lo!=null&&OLDEST!=null&&OLDEST<=META.lo;$("arch-info").innerHTML=`Loaded <b>${nf(RAW.size)}</b> of <b>${nf(META.total||RAW.size)}</b> stored events · oldest loaded <b>${OLDEST!=null?fmtS.format(tsMs(OLDEST)):"–"}</b> · first event ever <b>${META.lo!=null?fmtS.format(tsMs(META.lo)):"–"}</b>`;["arch-more","arch-go","arch-all"].forEach(i=>$(i).disabled=fullyLoaded||LOADING);$("arch-note").textContent=fullyLoaded?"Everything stored is loaded. Charts and tables use all of it.":"Loaded older events are merged into every chart, table and session view above."}
+async function older(untilMs){if(LOADING||OLDEST==null)return;LOADING=true;archInfo();try{for(let i=0;i<200;i++){$("arch-note").textContent="Loading older events…";const r=await (await fetch(`/api/archive?before=${OLDEST}&limit=10000`,{cache:"no-store",credentials:"same-origin"})).json();merge(r);if(!r.more||!(r.events||[]).length||untilMs==null||tsMs(OLDEST)<=untilMs)break}}catch(e){console.error(e);$("arch-note").textContent="Archive load failed, try again"}LOADING=false;rebuild()}
+async function load(force){$("status").textContent=force?"Updating":"Syncing";
+ try{const inc=!force&&NEWEST!=null,u=force?"/api/refresh":inc?"/api/events?since="+NEWEST:"/api/events";const r0=await fetch(u,{cache:"no-store",credentials:"same-origin"});if(r0.status==401){if((window._t=(window._t||0)+1)<4){setTimeout(load,1000);return}location.reload();return}window._t=0;const r=await r0.json();TEST=new Set(r.test_ips||[]);if(force&&!inc){const keepOld=OLDEST;merge(r);if(keepOld!=null)OLDEST=Math.min(OLDEST,keepOld)}else merge(r);rebuild();ticker();
+ $("status").textContent=r.last_error?("Sync problem: "+r.last_error):(r.last_sync?"Updated "+fmtS.format(r.last_sync*1000):"Waiting for first sync")}
+ catch(e){console.error(e);$("status").textContent="Retrying";setTimeout(load,3000)}}
+$("arch-more").onclick=()=>older(null);$("arch-all").onclick=()=>older(0);$("arch-go").onclick=()=>{const v=$("arch-date").value;if(v)older(new Date(v+"T00:00:00").getTime())};
+$("mapnc").onclick=e=>{const b=e.target.closest("button");if(!b)return;MAPNC=b.dataset.v;[...$("mapnc").children].forEach(x=>x.classList.toggle("on",x==b));render()};
+if(!/^(127\.0\.0\.1|localhost)$/.test(location.hostname))$("signout").style.display="";
+$("refresh").onclick=()=>load(true);
+$("range").onclick=e=>{const b=e.target.closest("button");if(!b)return;GRAN=b.dataset.v;[...$("range").children].forEach(x=>x.classList.toggle("on",x==b));render()};
+["q","fsvc","fcty","fnc","hidetest","fsess"].forEach(i=>$(i).addEventListener("input",render));let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,120)});
+["c-svc","c-cty","c-pwlen","c-spi","c-newip","c-nc"].forEach(id=>{$(id).addEventListener("mousemove",e=>tipMove(id,e));$(id).addEventListener("mouseleave",hideTip)});
+document.addEventListener("click",e=>{const s2=e.target.closest("[data-sess]");if(s2){showSess(s2.dataset.sess);return}const a=e.target.closest("a.ip");if(a)showIP(a.dataset.ip);else if(e.target.id=="modal")$("modal").style.display="none"});
+addEventListener("keydown",e=>{if(e.key=="Escape")$("modal").style.display="none"});
+if(document.readyState=="complete")load();else addEventListener("load",()=>load());setInterval(load,60000);addEventListener("pageshow",e=>{if(e.persisted)load()});document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});setTimeout(()=>{if(!EV||!EV.length)load()},2500);setInterval(ticker,4000);
+</script></body></html>

@@ -1,0 +1,1 @@
+<?php session_start(); ?><!doctype html><html><head><title>Admin · web-prod-02</title></head><body><h1>Admin Login</h1><form method="post"><label>User <input name="user"></label><label>Password <input type="password" name="pass"></label><button>Sign in</button></form></body></html>

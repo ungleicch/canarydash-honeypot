@@ -1,0 +1,5 @@
+NAME="OpenWrt"
+VERSION="15.05"
+ID=openwrt
+VERSION_ID="15.05"
+PRETTY_NAME="OpenWrt Chaos Calmer 15.05"
