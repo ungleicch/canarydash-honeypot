@@ -1,7 +1,7 @@
 # CanaryDash honeypot dataset + dashboard
 
 Raw, **unredacted** logs from a class honeypot (Azure VM running OpenCanary, then Cowrie SSH/Telnet), with the local CanaryDash dashboard used to explore them.
-Data covers **2026-10-15 03:51 PDT → 2026-10-21 20:37 PDT**.
+Data covers **2026-10-14 20:51 PDT → 2026-10-21 20:37 PDT**.
 
 > The logs contain attacker IPs, credentials, commands, malware download URLs, SHA-256 hashes and filenames, and SSH public keys that attackers tried to plant. They also show the honeypot VM's own public IP (20.98.51.91). Do not run anything you find in here.
 
@@ -34,3 +34,9 @@ CANARY_FULL=$PWD/unpacked CANARY_DB=$PWD/unpacked/canarydash-full.sqlite CANARY_
 - **Owner secrets**: the shipper config (`/etc/canary-shipper.json`, never copied), SSH keys, `.env` files, and the dashboard's online password file.
 - **Derived or duplicate data**: `canarydash-full.sqlite` (3.7 GB, rebuilt by `setup.sh`), `daily/` backup snapshots (copies of the same logs), and `events.jsonl`/`poller-cache` (copies of the live logs).
 - **DB-IP `.mmdb` geo databases**: the 127 MB file is over the size limit. They're free from db-ip.com (the Lite city/ASN versions).
+
+## Docs
+- `docs/ADMIN_NOTES.md`: architecture, config decisions, operating rules and timeline.
+- `docs/DATA_GAPS_AND_ISSUES.md`: known gaps and anomalies, checked against the data. Hourly counts are in `docs/events_per_hour_pt.csv` and charted in `docs/events_per_hour_pt.png`.
+
+This repo is static: code, data and docs only. There is no live view and no hosted dashboard.
