@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CanaryDash · local full dataset</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CanaryDash · Static archive, data through 2026-10-21 20:37 PT</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 :root{--bg:#090c10;--bg2:#0e1319;--card:#121820;--card2:#151c26;--line:#222b37;--line2:#2c3746;--txt:#e8ecf2;--mut:#8792a2;--dim:#5d6878;--acc:#f5b942;--good:#4fd1a5;--bad:#ff6b6b;--blu:#5aa9ff}
@@ -62,7 +62,7 @@ footer{color:var(--dim);font-size:12px;padding:10px 24px 28px;max-width:1680px;m
 <header><div class="brand"><span class="dot"></span>CanaryDash</div><span class="node">LOCAL full dataset · Mac offline copy of 20.98.51.91</span>
 <div id="ticker">Waiting for events</div>
 <div class="seg" id="range"><button data-v="h" class="on">48 hours</button><button data-v="d">30 days</button></div><select id="fera" title="Data source / era"><option value="">All sources</option><option value="live opencanary">Live OpenCanary</option><option value="pre-cowrie snapshot">Pre-cowrie snapshot</option><option value="cowrie">Cowrie</option></select>
-<span id="status">Loading</span><button id="refresh">Refresh</button><a class="out" id="signout" href="/logout" style="display:none">Sign out</a></header>
+<span id="status">Static archive, data through 2026-10-21 20:37 PT</span></header>
 <main>
 <div class="sec">Full dataset (every event in the local copy, computed on this Mac)</div>
 <div class="card c12" id="full"><h2>All-time totals <small id="full-sub"></small><span class="sp"></span><span class="seg" id="fera2"><button data-v="" class="on">All</button><button data-v="live opencanary">Live OpenCanary</button><button data-v="pre-cowrie snapshot">Pre-cowrie snapshot</button><button data-v="cowrie">Cowrie</button></span></h2>
@@ -74,7 +74,7 @@ footer{color:var(--dim);font-size:12px;padding:10px 24px 28px;max-width:1680px;m
 <div style="grid-column:span 2"><h2>Top shell commands</h2><div class="bars" id="f-cmd"></div></div><div><h2>Malware download hosts</h2><div class="bars" id="f-dlh"></div></div></div>
 <h2 style="margin-top:14px">Captured malware (unique SHA-256)</h2><div class="tw" id="f-mal"></div>
 <div class="sub" id="f-ingest" style="margin-top:10px"></div></div>
-<div class="sec">Live views (interactive; loads the newest events first, use "Load everything" at the bottom for all of it)</div>
+<div class="sec">Event views (static archive; newest events load first, use "Load everything" at the bottom for all of it)</div>
 <div class="card kpi c2"><div class="l">Events</div><div class="n" id="k-ev">0</div><div class="t" id="t-ev"></div></div>
 <div class="card kpi c2"><div class="l">Unique attackers</div><div class="n" id="k-ip">0</div><div class="t" id="t-ip"></div></div>
 <div class="card kpi c2"><div class="l">New attackers</div><div class="n" id="k-new">0</div><div class="t" id="t-new"></div></div>
@@ -329,21 +329,21 @@ const tsMs=v=>v==null?null:(v>1e12?v:v*1000);
 function archInfo(){const fullyLoaded=META.lo!=null&&OLDEST!=null&&OLDEST<=META.lo;$("arch-info").innerHTML=`Loaded <b>${nf(RAW.size)}</b> of <b>${nf(META.total||RAW.size)}</b> stored events · oldest loaded <b>${OLDEST!=null?fmtS.format(tsMs(OLDEST)):"–"}</b> · first event ever <b>${META.lo!=null?fmtS.format(tsMs(META.lo)):"–"}</b>`;["arch-more","arch-go","arch-all"].forEach(i=>$(i).disabled=fullyLoaded||LOADING);$("arch-note").textContent=fullyLoaded?"Everything stored is loaded. Charts and tables use all of it.":"Loaded older events are merged into every chart, table and session view above."}
 async function older(untilMs){if(LOADING||OLDEST==null)return;LOADING=true;archInfo();try{for(let i=0;i<200;i++){$("arch-note").textContent="Loading older events…";const r=await (await fetch(`/api/archive?before=${OLDEST}&limit=10000`,{cache:"no-store",credentials:"same-origin"})).json();merge(r);if(!r.more||!(r.events||[]).length||untilMs==null||tsMs(OLDEST)<=untilMs)break}}catch(e){console.error(e);$("arch-note").textContent="Archive load failed, try again"}LOADING=false;rebuild()}
 async function load(force){$("status").textContent=force?"Updating":"Syncing";
- try{const inc=!force&&NEWEST!=null,u=force?"/api/refresh":inc?"/api/events?since="+NEWEST:"/api/events";const r0=await fetch(u,{cache:"no-store",credentials:"same-origin"});if(r0.status==401){if((window._t=(window._t||0)+1)<4){setTimeout(load,1000);return}location.reload();return}window._t=0;const r=await r0.json();TEST=new Set(r.test_ips||[]);if(force&&!inc){const keepOld=OLDEST;merge(r);if(keepOld!=null)OLDEST=Math.min(OLDEST,keepOld)}else merge(r);rebuild();ticker();
- $("status").textContent=r.last_error?("Sync problem: "+r.last_error):(r.last_sync?"Updated "+fmtS.format(r.last_sync*1000):"Waiting for first sync")}
- catch(e){console.error(e);$("status").textContent="Server busy, retrying in 2 min";setTimeout(load,120000)}}
+ try{const inc=!force&&NEWEST!=null,u="/api/events";const r0=await fetch(u,{cache:"no-store",credentials:"same-origin"});if(r0.status==401){if((window._t=(window._t||0)+1)<4){setTimeout(load,1000);return}location.reload();return}window._t=0;const r=await r0.json();TEST=new Set(r.test_ips||[]);if(force&&!inc){const keepOld=OLDEST;merge(r);if(keepOld!=null)OLDEST=Math.min(OLDEST,keepOld)}else merge(r);rebuild();ticker();
+ $("status").textContent="Static archive, data through 2026-10-21 20:37 PT"}
+ catch(e){console.error(e);$("status").textContent="Could not load bundled data (is server.py running?)"}}
 $("arch-more").onclick=()=>older(null);$("arch-all").onclick=()=>older(0);$("arch-go").onclick=()=>{const v=$("arch-date").value;if(v)older(new Date(v+"T00:00:00").getTime())};
 $("mapnc").onclick=e=>{const b=e.target.closest("button");if(!b)return;MAPNC=b.dataset.v;[...$("mapnc").children].forEach(x=>x.classList.toggle("on",x==b));render()};
-if(!/^(127\.0\.0\.1|localhost)$/.test(location.hostname))$("signout").style.display="";
-$("refresh").onclick=()=>load(true);
+
+
 $("range").onclick=e=>{const b=e.target.closest("button");if(!b)return;GRAN=b.dataset.v;[...$("range").children].forEach(x=>x.classList.toggle("on",x==b));render()};
 ["q","fsvc","fcty","fnc","hidetest","fsess"].forEach(i=>$(i).addEventListener("input",render));let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,120)});
 ["c-svc","c-cty","c-pwlen","c-spi","c-newip","c-nc"].forEach(id=>{$(id).addEventListener("mousemove",e=>tipMove(id,e));$(id).addEventListener("mouseleave",hideTip)});
 document.addEventListener("click",e=>{const s2=e.target.closest("[data-sess]");if(s2){showSess(s2.dataset.sess);return}const a=e.target.closest("a.ip");if(a)showIP(a.dataset.ip);else if(e.target.id=="modal")$("modal").style.display="none"});
 addEventListener("keydown",e=>{if(e.key=="Escape")$("modal").style.display="none"});
-if(document.readyState=="complete")load();else addEventListener("load",()=>load());setInterval(load,60000);addEventListener("pageshow",e=>{if(e.persisted)load()});document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});setTimeout(()=>{if(!EV||!EV.length)load()},2500);setInterval(ticker,4000);
+if(document.readyState=="complete")load();else addEventListener("load",()=>load());ticker();
 </script><script>
-const ERACOL={"live opencanary":"#4fd1a5","pre-cowrie snapshot":"#b79cff","cowrie":"#f5b942"},ERALAB={"live opencanary":"Live OpenCanary","pre-cowrie snapshot":"Pre-cowrie snapshot","cowrie":"Cowrie"};
+const ERACOL={"live opencanary":"#4fd1a5","pre-cowrie snapshot":"#b79cff","cowrie":"#f5b942"},ERALAB={"live opencanary":"OpenCanary","pre-cowrie snapshot":"Pre-cowrie snapshot","cowrie":"Cowrie"};
 let FERA="";
 async function loadSummary(){try{const r=await (await fetch("/api/summary?era="+encodeURIComponent(FERA),{cache:"no-store"})).json(),S=r.summary,R=r.report||{};
  const fd=v=>v?fmtS.format(v):"–";$("full-sub").textContent=(FERA?ERALAB[FERA]:"all sources")+" · "+fd(S.first_ts)+" → "+fd(S.last_ts)+" PT";
@@ -362,10 +362,10 @@ async function loadSummary(){try{const r=await (await fetch("/api/summary?era="+
  bars("f-cmd",S.top_commands.slice(0,20).map(([c,n])=>[c.length>110?c.slice(0,110)+"…":c,n]));
  bars("f-dlh",S.download_hosts.slice(0,14),{color:()=>"#ff6b6b"});
  $("f-mal").innerHTML=S.malware.length?`<table><thead><tr><th>SHA-256</th><th>Type</th><th>Size</th><th>Fetches</th><th>IPs</th><th>First seen (PT)</th><th>Last seen (PT)</th><th>Example URL</th></tr></thead><tbody>${S.malware.slice(0,200).map(x=>`<tr><td class="mono">${esc(x.sha256)}</td><td>${esc(x.type)}</td><td>${x.size!=null?nf(+x.size)+" B":""}</td><td>${nf(x.n)}</td><td>${x.ips}</td><td>${fmt.format(x.first)}</td><td>${fmt.format(x.last)}</td><td class="d mono">${esc(x.url)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">No downloads</div>';
- $("f-ingest").textContent="Local database built "+fmtS.format(R.ingested_at*1000)+" PT from "+(r.root||"")+" · run ~/Developer/CanaryDash/full/refresh.sh to pull new data from the VM";
+ $("f-ingest").textContent="Local database built "+fmtS.format(R.ingested_at*1000)+" PT from "+(r.root||"")+"";
 }catch(e){console.error(e);$("full-sub").textContent="summary failed to load"}}
 $("fera2").onclick=e=>{const b=e.target.closest("button");if(!b)return;FERA=b.dataset.v;[...$("fera2").children].forEach(x=>x.classList.toggle("on",x==b));$("fera").value=FERA;loadSummary();render()};
 $("fera").addEventListener("input",()=>{FERA=$("fera").value;[...$("fera2").children].forEach(x=>x.classList.toggle("on",x.dataset.v==FERA));loadSummary();render()});
-loadSummary();setInterval(loadSummary,300000);
+loadSummary();
 </script>
 </body></html>

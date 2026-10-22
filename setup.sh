@@ -7,4 +7,4 @@ for f in $(find . -name '*.part00'); do b="${f%.part00}"; cat "$b".part* > "$b";
 while read -r p; do [ -f "$p.gz" ] && gunzip "$p.gz"; done < ../../data/GZIPPED_FOR_REPO.txt
 cd ../..
 CANARY_FULL="$PWD/unpacked" CANARY_DB="$PWD/unpacked/canarydash-full.sqlite" python3 dashboard/full/ingest.py
-echo "Run: CANARY_FULL=\$PWD/unpacked CANARY_DB=\$PWD/unpacked/canarydash-full.sqlite CANARY_PORT=8790 python3 dashboard/full/server.py"
+echo "Done. Run: python3 dashboard/full/server.py 8802   then open http://127.0.0.1:8802"

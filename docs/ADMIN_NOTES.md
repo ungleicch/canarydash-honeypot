@@ -11,10 +11,26 @@ All times are Pacific (PT) unless marked Z (UTC). Secrets, account names, emails
 - **`canary-tools/cowrie_conv.py`** converts Cowrie events into OpenCanary format and writes them to `/var/tmp/cowrie-canary.log`, so one pipeline can read both.
 - **Cloud pipeline (retired as a primary path)**: `shipper.py` sent batches to a Cloudflare Worker backed by D1 on the free tier. `snapshot.py` posted a gzipped snapshot of the newest 20k events to the Worker, which stored it in KV. `upload_*.sh` and `blob_put.sh` archived rotated logs to Azure Blob using the VM's managed identity, with a lifecycle rule moving them to the Cool tier after 7 days and no deletes.
 - **Local CanaryDash** (`dashboard/`): a Python standard-library dashboard on the owner's Mac.
-  - `dashboard/` was the live-cache version. It polled over SSH at first, then switched to manual incremental pulls.
+  - The live version (not in this repo) polled the VM over SSH at first, then switched to manual incremental pulls.
+  - This repo contains only a static, read-only version (`dashboard/site` and `dashboard/full`).
   - `dashboard/full/` is the offline full-dataset version. `ingest.py` builds SQLite from a full copy, and `server.py` serves it.
   - IP enrichment uses DB-IP Lite databases plus a cached ip-api.com lookup (`data/ipcache.json`).
 - **Backups**: a daily `rsync` to the Mac (`data/backup-logs/`), plus manual full copies, which is what this repo is built from.
+
+## Operational components (described here, not included)
+This archive deliberately contains **no runnable operational code**. On the live system the following existed:
+- **Shipper** (`shipper.py`, several revisions): ran from cron on the VM. It read new log lines and posted them in batches to a Cloudflare Worker, which stored them in D1. It kept a saved file position, and soft-exited on free-tier limit errors so the backlog could be sent later.
+- **Snapshot builder** (`snapshot.py`): ran from cron every 2 minutes. It streamed the newest 20,000 events plus geo data, gzipped them, and posted them to the Worker's KV store for the cloud dashboard.
+- **Blob uploaders** (`upload_cowrie.sh`, `upload_rotated.sh`, `blob_put.sh`): archived rotated logs to Azure Blob Storage using the VM's managed identity, and wrote empty `.uploaded` marker files.
+- **Log converter** (`cowrie_conv.py`): wrote `cowrie-canary.log` (see the glossary).
+- **Cowrie watchdog** (`cowrie_watchdog.sh`): ran from cron. It restarted Cowrie when the log was idle or memory went above about 300 MB.
+- **Persona profiler** (`personas/profiler.py`): ran from cron every 5 minutes. Its logic is summarized below.
+- **honeyfs builder** (`improve_honeyfs.py`): a one-time script that wrote the fake filesystem files that *are* included.
+- **Cloudflare Worker, D1 and KV**: a password-protected web dashboard and archive.
+- **Mac-side tools**: a poller (later disabled), manual incremental pull and refresh scripts, a daily rsync backup job, and restart scripts.
+- **Cron and systemd units** for the above, plus iptables rules for the rate limit.
+
+Cowrie and OpenCanary configs are kept only as reference text (`*.reference.txt`).
 
 ## Operating rules
 - **No hack-back.** Attackers are only observed, never attacked, scanned back or contacted. Captured malware is never run.
@@ -63,7 +79,7 @@ All times are Pacific (PT) unless marked Z (UTC). Secrets, account names, emails
 
 The IoT and miner personas also add overlay files under `personas/honeyfs/<id>/` (`etc/`, `proc/`, for example a fake `/proc/cpuinfo`).
 
-**How IPs get tagged** (`personas/profiler.py`, run every 5 minutes):
+**How IPs get tagged** (by the profiler script, which ran every 5 minutes from cron and is not included in this repo):
 1. It reads recent Cowrie connect, login, command and download events and groups them by source IP.
 2. It scores each IP with keyword rules. Signals of a Mirai-style IoT bot are BusyBox, `enable`/`system`/`shell`, typical IoT default passwords and IoT usernames. MIPS strings point to a MIPS router. Miner signals are xmrig, nvidia-smi, `stratum+tcp` and monero. Admin-like commands count toward the server persona.
 3. It picks a persona. A MIPS score of 3 or more wins first, then a miner score of 5 or more, then an IoT score of 4 or more gives iot-arm. Anything else gets linux-server.
@@ -71,7 +87,7 @@ The IoT and miner personas also add overlay files under `personas/honeyfs/<id>/`
 5. The results go in `personas/ip_profiles.json`, along with the evidence for each choice. The map size is capped, keeping pinned entries and the highest IoT/miner scores. The copy in this repo has 1,010 IPs: 666 linux-server and 344 iot-arm. One IP is pinned: 191.98.239.177, set to iot-arm.
 
 **What changes for the attacker.** Commands like `uname`, `busybox`, `hostname` and `cat /proc/cpuinfo` return the persona's values. On 2026-10-15 a check of an iot-arm session returned `uname -m` = armv7l, an ARM cpuinfo, BusyBox v1.22.1 and hostname IPC-HI3518. Each session logs a `cowrie.session.params` event with `persona=<id>` (and `arch`).
-The Cowrie source patches that apply the persona (`persona_loader.py` and changes to `shell/realm.py`, `shell/server.py`, `commands/uname.py`, `commands/busybox.py` and `shell/protocol.py`) are **not included in this repo**. They are described in `dashboard/PERSONAS.md`.
+The Cowrie source patches that apply the persona (`persona_loader.py` and changes to `shell/realm.py`, `shell/server.py`, `commands/uname.py`, `commands/busybox.py` and `shell/protocol.py`) are **not included in this repo**. They are described here only.
 
 **Why.** IoT botnets usually check the CPU architecture before downloading a payload built for it. A plain x86 web server makes many of them give up, while a matching fake device makes them download their malware, which gets captured (capped at 10 MB and never run).
 
