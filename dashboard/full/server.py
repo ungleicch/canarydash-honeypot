@@ -3,6 +3,7 @@
 / = static overview + docs (dashboard/site, works without a DB); /explorer = event browser over the local SQLite built by ./setup.sh.
 Usage: python3 dashboard/full/server.py [port]   (default 8802)"""
 import gzip, json, os, sqlite3, sys, time
+import explore
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +40,14 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path); q = {k: v[0] for k, v in parse_qs(u.query).items()}; p = u.path
         try:
+            if p.startswith("/api/x/"):
+                try: body, ct = explore.handle(p, q)
+                except explore.QErr as e: return self.send(json.dumps({"error": str(e)}), code=400)
+                if p == "/api/x/csv":
+                    b = body.encode(); self.send_response(200); self.send_header("Content-Type", ct)
+                    self.send_header("Content-Disposition", 'attachment; filename="canarydash_query.csv"'); self.send_header("Content-Length", str(len(b)))
+                    self.end_headers(); self.wfile.write(b); return
+                return self.send(body, ct)
             if p in ("/api/events", "/api/archive"): return self.events(p, q)
             if p == "/api/summary":
                 c = conn(); era = q.get("era") or "all"

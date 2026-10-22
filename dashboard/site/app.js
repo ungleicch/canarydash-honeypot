@@ -55,7 +55,7 @@ async function doc(key){const[u,t]=DOCS[key];let md=await (await get(u)).text();
  $("#main").innerHTML=`<article class="md">${html}</article>`;
  $("#main").querySelectorAll("a[href^='http']").forEach(a=>{a.rel="noopener noreferrer";a.target="_blank"})}
 async function route(){charts.forEach(c=>c.destroy());charts=[];const h=(location.hash||"#overview").slice(1);
- document.querySelectorAll("nav a[data-p]").forEach(a=>a.classList.toggle("on",a.dataset.p===h));window.scrollTo(0,0);
- try{if(h.startsWith("doc/"))return await doc(h.slice(4));if(!S)S=await (await get("/site/stats.json")).json();$("#main").innerHTML=(PAGES[h]||PAGES.overview)();draw()}
+ document.querySelectorAll("nav a[data-p]").forEach(a=>a.classList.toggle("on",a.dataset.p===h.split("?")[0]));window.scrollTo(0,0);
+ try{if(h.startsWith("explore"))return window.renderExplore&&window.renderExplore();if(h.startsWith("doc/"))return await doc(h.slice(4));if(!S)S=await (await get("/site/stats.json")).json();$("#main").innerHTML=(PAGES[h]||PAGES.overview)();draw()}
  catch(e){$("#main").innerHTML=`<h1>Could not load</h1><p class="lede">${esc(e.message)}. Start the local server: <code>python3 dashboard/full/server.py 8802</code>.</p>`}}
-addEventListener("hashchange",route);route();
+let _lastH="";addEventListener("hashchange",()=>{const b=location.hash.split("?")[0];if(b==="#explore"&&_lastH==="#explore")return;_lastH=b;route()});_lastH=(location.hash||"").split("?")[0];route();

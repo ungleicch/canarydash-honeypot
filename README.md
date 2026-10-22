@@ -30,6 +30,14 @@ python3 dashboard/full/server.py 8802      # port optional, default 8802
 # open http://127.0.0.1:8802
 ```
 - `/` shows the overview charts (precomputed in `dashboard/site/stats.json`) and all the docs, and needs no setup.
+- `/#explore` is **Explore & query**, a query builder over the full dataset that runs on your own machine. It has:
+  - filters for source, PT time range, IP/CIDR, protocol, event type, port, username, password, command, malware hash, URL, country, ASN, persona and session, each with an option to exclude matches;
+  - an instant count of matching entries;
+  - a chart builder (line, area, bar, stacked bar, pie, heatmap, scatter);
+  - a sortable, paginated table with CSV export;
+  - nine example queries.
+
+  The current query is stored in the URL, so a link reopens the same view. It needs `./setup.sh`, which builds the indexed `unpacked/explore.sqlite`. The query endpoints (`/api/x/*`) are read-only, accept only whitelisted fields and fixed parameterized SQL, and stop any query after 15 s. This is **local querying of a static archive, not a live feed**.
 - `/explorer` is an event-by-event browser. It needs the local SQLite index: run `./setup.sh` once, which unpacks the logs into `./unpacked` and builds the index.
 - The chart and markdown libraries are vendored in `dashboard/site/vendor`, so there are no CDN requests.
 - To regenerate the stats, run `python3 dashboard/build_stats.py unpacked/canarydash-full.sqlite`. Country and ASN charts need DB-IP Lite `.mmdb` files during ingest (not included).

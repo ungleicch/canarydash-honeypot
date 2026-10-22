@@ -46,3 +46,21 @@ This page explains everything specific to this setup that a newcomer might run i
 | Incremental refresh / pull | Copying only the bytes added since the last pull from the VM, started by hand | 10-18 13:54 | Explains how this copy was made. |
 | `VM_COUNTS.txt` / `LOCAL_COUNTS.txt` | Bytes, lines and path for each file on the VM vs this copy | at copy time | Live files can differ slightly (rsync code 24). |
 | `.bak*`, `.pre-*` files | Earlier versions of scripts kept before each change | various | Useful history, not active code. |
+
+## Explore page (`/#explore`)
+| Item | Meaning |
+|---|---|
+| Source | `pre-cowrie snapshot`, `live opencanary` or `cowrie` (see above) |
+| Event type | For Cowrie, the native `eventid` (for example `cowrie.login.success`). For OpenCanary, `opencanary.<service>` (for example `opencanary.redis`), taken from its logtype. |
+| Protocol | For Cowrie, `telnet` or `ssh`. For OpenCanary, the service name. |
+| Username / Password | Exact match. Type `(empty)` for a blank value, and separate several values with commas. |
+| IP / CIDR | Exact IPs or IPv4 CIDR ranges (`124.29.0.0/16`), separated by commas |
+| Command / hash / URL / ASN "contains" | Substring match. URL also matches OpenCanary HTTP paths, and Command also matches Redis commands. |
+| Country / ASN | Offline DB-IP Lite lookup by IP. This is empty if the index was built without the `.mmdb` files. |
+| Persona | The fake system Cowrie showed that session (from 2026-10-15 00:42 PT on). It's empty for OpenCanary and for earlier sessions. |
+| exclude | Turns that filter into NOT. Rows where the field is empty also count as excluded matches. |
+| Y metrics | `events` = matching rows. `ips` = distinct source IPs. `sessions` = distinct Cowrie session ids. `downloads` = successful `cowrie.session.file_download` rows. |
+| Time buckets | Minute, hour and day are in PT. The whole dataset falls in PDT (UTC-7). Minute charts stop at 2,000 buckets. |
+| Split by / Top N | Draws one series for each of the top-N values of a second field. Top N also caps the categories on the X axis. |
+| Count | An exact SQL COUNT over the indexed table, with the number of distinct IPs and the time span of the matches |
+| CSV export | Up to 200,000 rows of the current query |
