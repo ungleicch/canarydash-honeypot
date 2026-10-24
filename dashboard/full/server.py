@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """CanaryDash static archive server. Read-only, Python stdlib only, 127.0.0.1 only, makes no outbound connections.
-/ = static overview + docs (dashboard/site, works without a DB); /explorer = event browser over the local SQLite built by ./setup.sh.
+/ = static overview + docs (dashboard/site, works without a DB); /explorer = event browser over the local SQLite downloaded by ./setup.sh.
 Usage: python3 dashboard/full/server.py [port]   (default 8802)"""
 import gzip, json, os, sqlite3, sys, time
 import explore

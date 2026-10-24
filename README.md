@@ -33,14 +33,16 @@ See `docs/FINAL_SUMMARY.md` for the final summary.
 Files over 20 MB were gzipped (`data/GZIPPED_FOR_REPO.txt`), and anything still over 95 MB was split into 90 MB `.partNN` chunks to fit GitHub's limit. To rejoin a split file, run `cat file.gz.part* | gunzip > file`.
 
 ## Static archive: no live components
-This repository is a **static, read-only, offline snapshot**. It doesn't connect to the honeypot, any cloud service or any remote URL. It has no refresh or pull features and no auto-reload, and there's no hosted version.
+This repository is a **static, read-only, offline snapshot**. It doesn't connect to the honeypot or any cloud service. The only network access is `./setup.sh` downloading the static, prebuilt databases once from the Hugging Face dataset [hznd67/canarydash-honeypot](https://huggingface.co/datasets/hznd67/canarydash-honeypot). It has no refresh or pull features and no auto-reload, and there's no hosted version.
 
 ## View the dashboard locally
-Requires Python 3 (standard library only).
+Requires Python 3 (standard library only), plus `curl` and `zstd` for the one-time download.
 ```bash
-python3 dashboard/full/server.py 8802      # port optional, default 8802
+./setup.sh            # downloads the prebuilt DBs (~GB) from Hugging Face, checks sha256, decompresses into ./unpacked, starts the server
 # open http://127.0.0.1:8802
+# later runs: python3 dashboard/full/server.py 8802
 ```
+Nothing is rebuilt from the logs; the databases on Hugging Face were built once from the logs in this repo (`dashboard/full/ingest.py`, `dashboard/full/build_query_index.py`, kept for reference).
 - `/` shows the overview charts (precomputed in `dashboard/site/stats.json`) and all the docs, and needs no setup.
 - `/#explore` is **Explore & query**, a query builder over the full dataset that runs on your own machine. It has:
   - filters for source, PT time range, IP/CIDR, protocol, event type, port, username, password, command, malware hash, URL, country, ASN, persona and session, each with an option to exclude matches;
@@ -50,8 +52,8 @@ python3 dashboard/full/server.py 8802      # port optional, default 8802
   - nine example queries.
 
   Every chart (Explore and the overview pages) has **PNG** and **Copy** buttons. They export the chart at 2x resolution on the current theme's background, with the title, active filters, PT time range and a footer.
-  The current query is stored in the URL, so a link reopens the same view. It needs `./setup.sh`, which builds the indexed `unpacked/explore.sqlite`. The query endpoints (`/api/x/*`) are read-only, accept only whitelisted fields and fixed parameterized SQL, and stop any query after 15 s. This is **local querying of a static archive, not a live feed**.
-- `/explorer` is an event-by-event browser. It needs the local SQLite index: run `./setup.sh` once, which unpacks the logs into `./unpacked` and builds the index.
+  The current query is stored in the URL, so a link reopens the same view. It needs `./setup.sh`, which downloads the indexed `unpacked/explore.sqlite`. The query endpoints (`/api/x/*`) are read-only, accept only whitelisted fields and fixed parameterized SQL, and stop any query after 15 s. This is **local querying of a static archive, not a live feed**.
+- `/explorer` is an event-by-event browser. It needs the local SQLite index: run `./setup.sh` once, which downloads it into `./unpacked`.
 - The chart and markdown libraries are vendored in `dashboard/site/vendor`, so there are no CDN requests.
 - To regenerate the stats, run `python3 dashboard/build_stats.py unpacked/canarydash-full.sqlite`. Country and ASN charts need DB-IP Lite `.mmdb` files during ingest (not included).
 
@@ -59,7 +61,7 @@ python3 dashboard/full/server.py 8802      # port optional, default 8802
 - **Malware samples**: Cowrie `downloads/` and the `downloads_DO_NOT_RUN.tar.gz` archive. They are live MIPS/ARM/x86 malware, and GitHub doesn't allow them. Their hashes and URLs are still in the logs and in `downloads_listing.txt`.
 - **Operational code**: shippers, uploaders, the watchdog, the profiler, poll/pull/refresh scripts, cron jobs and the cloud worker. They're described in prose in `docs/ADMIN_NOTES.md`.
 - **Owner secrets**: the shipper config (`/etc/canary-shipper.json`, never copied), SSH keys, `.env` files, and the dashboard's online password file.
-- **Derived or duplicate data**: `canarydash-full.sqlite` (3.7 GB, rebuilt by `setup.sh`), `daily/` backup snapshots (copies of the same logs), and `events.jsonl`/`poller-cache` (copies of the live logs).
+- **Derived or duplicate data**: `canarydash-full.sqlite` and `explore.sqlite` (7.3 GB and 4.0 GB, published compressed on Hugging Face and fetched by `setup.sh`), `daily/` backup snapshots (copies of the same logs), and `events.jsonl`/`poller-cache` (copies of the live logs).
 - **DB-IP `.mmdb` geo databases**: the 127 MB file is over the size limit. They're free from db-ip.com (the Lite city/ASN versions).
 
 ## What "adaptive personas" means

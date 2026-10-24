@@ -59,8 +59,8 @@ Cowrie and OpenCanary configs are kept only as reference text (`*.reference.txt`
 | 2026-10-16 ~10:20 → 2026-10-17 ~16:00 | Cowrie produced no events (see the data-gaps doc). |
 | 2026-10-17 ~18:25 | First entry in the Cowrie watchdog log (idle-log restarts). |
 | 2026-10-15 → 2026-10-18 13:54 | The old Mac CanaryDash poller kept re-downloading the full logs (about 387 GB of egress, which pushed the Azure budget alert past $20). It was killed, and pulls became manual and incremental. |
-| 2026-10-19 | Pre-emptive memory restarts added to the watchdog. Restarts climbed to about 40–120 per day from 10-20 on. |
-| 2026-10-21 20:37 | Last event in this dataset (full copy taken 20:39). |
+| 2026-10-19 | Pre-emptive memory restarts added to the watchdog. Restarts climbed to 119 on 10-20, 222 on 10-22 and 461 on 10-23 (UTC days). |
+| 2026-10-23 16:16 | Services stopped and final full copy taken; last event in this dataset. The Azure VM and storage and the hosted dashboard were then removed. |
 
 ## Adaptive personas (in detail)
 **Terms.** A *honeypot* is a computer put on the internet only to be attacked, so the attacks can be recorded. *OpenCanary* is a honeypot that imitates many network services (FTP, web, databases and so on) and logs each attempt. *Cowrie* imitates an SSH/Telnet login and a Linux shell, and it records the attacker's commands and downloaded files. A *persona* is the fake identity the fake shell shows: its hostname, CPU type, kernel version, BusyBox banner and certain files.

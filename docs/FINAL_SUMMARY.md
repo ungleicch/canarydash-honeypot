@@ -14,4 +14,4 @@
 - Credentials tried: `ximo / ` (44,387), `root / xc3511` (16,339), `root / Zte521` (16,106), `admin / admin` (13,892), `root / 888888` (13,581)
 - OpenCanary services: Port scan (568,013), Redis 6379 (517,365), VNC 5900 (266,736), RDP 3389 (150,942), MySQL 3306 (28,651)
 
-`docs/TOP10_FINDINGS.md` was written on Oct 21 from the first 7 days; its numbers cover only that period. The dashboard (`dashboard/site/stats.json`) has the final numbers.
+`docs/TOP10_FINDINGS.md` and the dashboard (`dashboard/site/stats.json`) use these final numbers.

@@ -54,12 +54,13 @@ newrep = [{"day": d, "new": sum(1 for ip, s in ip_days.items() if d in s and fir
            "repeat": sum(1 for ip, s in ip_days.items() if d in s and first[ip] < d)} for d in days]
 gaps = [{"from": "2026-10-14 20", "to": "2026-10-14 23", "label": "OpenCanary only (pre-Cowrie)"},
         {"from": "2026-10-15 09", "to": "2026-10-15 11", "label": "VM out-of-memory freeze"},
+        {"from": "2026-10-17 17", "to": "2026-10-19 09", "label": "Cowrie hangs (21 silences of ~30 min, watchdog restarts)"},
         {"from": "2026-10-16 10", "to": "2026-10-17 16", "label": "Cowrie outage (~30 h, cause unknown)"}]
 top = lambda c, ips, n: [{"k": k, "n": v, "ips": len(ips[k])} for k, v in c.most_common(n)]
 S = {"generated_from": os.path.basename(DB), "range_pt": ["2026-10-14 20:51", "2026-10-23 16:16"],
      "totals": {"events": sum(sum(c.values()) for c in hourly.values()), "cowrie_ips": len(cw_ips), "opencanary_ips": len(oc_ips),
                 "sessions": sum(sum(c.values()) for c in day_sess.values()), "downloads": sum(dl_hash.values()), "unique_files": len(dl_hash), "failed_downloads": dl_fail},
-     "hourly": [{"h": h, **hourly[h]} for h in sorted(hourly)], "gaps": gaps,
+     "hourly": [{"h": h, **hourly[h]} for h in sorted(hourly)][:-1]  # final partial shutdown hour omitted from charts; still in totals, "gaps": gaps,
      "sessions_per_day": [{"day": d, **day_sess[d]} for d in sorted(day_sess)],
      "countries": top(country, cips, 15), "asns": top(asn, aips, 15), "creds": top(creds, credip, 20), "chains": top(ch, chip, 12),
      "malware_hashes": top(dl_hash, dl_hash_ips, 12), "downloads_per_day": [{"day": d, "n": dl_day[d]} for d in sorted(dl_day)],
