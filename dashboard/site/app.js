@@ -52,7 +52,7 @@ function draw(){theme();const H=fillHours(S.hourly),L=H.map(h=>h.h),[c1,c2,c3]=p
  if(document.getElementById("c-pers")){const p=Object.entries(S.persona_sessions).map(([k,n])=>({k,n})).sort((a,b)=>b.n-a.n);hbar("c-pers",p,"Sessions")}}
 function decorate(page){document.querySelectorAll("#main section.card").forEach(sec=>{const cvs=sec.querySelector("canvas"),ht=sec.querySelector("#heat");if(!cvs&&!ht)return;const h3=sec.querySelector("h3");
  const hd=document.createElement("div");hd.className="ct";h3.replaceWith(hd);hd.appendChild(h3);const title=h3.textContent,sub=(sec.querySelector(".sub")||{}).textContent||"";
- CDX.tools(hd,()=>({title,name:page+"-"+title,caption:[sub,"All data in this archive, 2026-10-14 20:51 to 2026-10-21 20:37 PT"],chart:cvs&&Chart.getChart(cvs),heat:ht?HEAT:null}))})}
+ CDX.tools(hd,()=>({title,name:page+"-"+title,caption:[sub,"All data in this archive, 2026-10-14 20:51 to 2026-10-23 16:16 PT"],chart:cvs&&Chart.getChart(cvs),heat:ht?HEAT:null}))})}
 async function doc(key){const[u,t]=DOCS[key];let md=await (await get(u)).text();
  if(key==="personas"){const i=md.indexOf("## Adaptive personas");md=i>=0?"# Adaptive personas\n"+md.slice(i).replace(/^## Adaptive personas[^\n]*\n/,""):md}
  if(key==="admin"){const i=md.indexOf("## Adaptive personas");if(i>=0)md=md.slice(0,i)+"\n_The adaptive personas section has its own page: [Adaptive personas](#doc/personas)._\n"}

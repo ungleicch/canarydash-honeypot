@@ -5,3 +5,4 @@
 ./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-18
 ./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-19
 ./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-21
+./opt/cowrie/cowrie/var/log/cowrie/cowrie.json.2026-10-22

@@ -15,7 +15,7 @@ function compose(img,title,caption){const S=2,pad=24,W=Math.max(img.width/S,640)
  x.fillStyle=cssv("--bg1")||"#111";x.fillRect(0,0,W,H);x.fillStyle=cssv("--tx");x.font=`600 15px ${FONT()}`;x.textBaseline="top";x.fillText(title,pad,pad);
  x.fillStyle=cssv("--mu");x.font=`12px ${FONT()}`;lines.forEach((l,i)=>x.fillText(l.length>150?l.slice(0,149)+"…":l,pad,pad+24+i*17));
  x.drawImage(img,pad,head,img.width/S,img.height/S);x.strokeStyle=cssv("--line");x.beginPath();x.moveTo(pad,H-foot+6);x.lineTo(W-pad,H-foot+6);x.stroke();
- x.fillStyle=cssv("--dim");x.font=`11px ${FONT()}`;x.fillText("CanaryDash honeypot archive · static data 2026-10-14 20:51 to 2026-10-21 20:37 PT",pad,H-foot+14);return c}
+ x.fillStyle=cssv("--dim");x.font=`11px ${FONT()}`;x.fillText("CanaryDash honeypot archive · static data 2026-10-14 20:51 to 2026-10-23 16:16 PT",pad,H-foot+14);return c}
 function render(spec){const img=spec.heat?heatImage(spec.heat):chartImage(spec.chart);return compose(img,spec.title,spec.caption)}
 async function out(spec,mode){const c=render(spec);
  const blob=await new Promise(r=>c.toBlob(r,"image/png"));

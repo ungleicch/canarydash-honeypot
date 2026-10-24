@@ -1,7 +1,7 @@
 # CanaryDash honeypot dataset + dashboard
 
 Raw, **unredacted** logs from a university-class honeypot (a machine put online only to be attacked and recorded) (Azure VM running OpenCanary, then Cowrie SSH/Telnet), with the local CanaryDash dashboard used to explore them.
-Data covers **2026-10-14 20:51 PDT → 2026-10-21 20:37 PDT**.
+Data covers **2026-10-14 20:51 PDT → 2026-10-23 16:16 PDT**.
 
 > The logs contain attacker IPs, credentials, commands, malware download URLs, SHA-256 hashes and filenames, and SSH public keys that attackers tried to plant. They also show the honeypot VM's own public IP (20.98.51.91). Do not run anything you find in here.
 

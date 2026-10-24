@@ -56,7 +56,7 @@ gaps = [{"from": "2026-10-14 20", "to": "2026-10-14 23", "label": "OpenCanary on
         {"from": "2026-10-15 09", "to": "2026-10-15 11", "label": "VM out-of-memory freeze"},
         {"from": "2026-10-16 10", "to": "2026-10-17 16", "label": "Cowrie outage (~30 h, cause unknown)"}]
 top = lambda c, ips, n: [{"k": k, "n": v, "ips": len(ips[k])} for k, v in c.most_common(n)]
-S = {"generated_from": os.path.basename(DB), "range_pt": ["2026-10-14 20:51", "2026-10-21 20:37"],
+S = {"generated_from": os.path.basename(DB), "range_pt": ["2026-10-14 20:51", "2026-10-23 16:16"],
      "totals": {"events": sum(sum(c.values()) for c in hourly.values()), "cowrie_ips": len(cw_ips), "opencanary_ips": len(oc_ips),
                 "sessions": sum(sum(c.values()) for c in day_sess.values()), "downloads": sum(dl_hash.values()), "unique_files": len(dl_hash), "failed_downloads": dl_fail},
      "hourly": [{"h": h, **hourly[h]} for h in sorted(hourly)], "gaps": gaps,
