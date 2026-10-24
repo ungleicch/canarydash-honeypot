@@ -1,5 +1,7 @@
 # Top 10 findings (data through Oct 21, 2026, 8:38 PM PT)
 
+> Written from data through Oct 21. Final totals through Oct 23 (project end) are in `FINAL_SUMMARY.md`.
+
 > **Terms:** a *session* is one connection to the fake SSH/Telnet login (Cowrie). A *credential* is the username/password a bot tried. An *ASN* is the network operator that owns an IP. *HASSH* is a fingerprint of an SSH client's settings. More terms are in `GLOSSARY.md`.
 
 Source: the SQLite index built from this repo's logs (5,409,998 events, read-only; see `dashboard/build_stats.py`). Cowrie window: Oct 14, 11:23 PM PT to Oct 21, 8:38 PM PT.

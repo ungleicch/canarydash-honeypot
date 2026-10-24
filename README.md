@@ -5,13 +5,25 @@ Data covers **2026-10-14 20:51 PDT → 2026-10-23 16:16 PDT**.
 
 > The logs contain attacker IPs, credentials, commands, malware download URLs, SHA-256 hashes and filenames, and SSH public keys that attackers tried to plant. They also show the honeypot VM's own public IP (20.98.51.91). Do not run anything you find in here.
 
+## Project status: ended, archived 2026-10-23
+The honeypot ran from **2026-10-14 20:51 PDT** to **2026-10-23 16:16 PDT** (about 8 days 19 hours). On 2026-10-23 the services were stopped, a final full copy was taken, and the cloud resources (VM, storage, hosted dashboard) were shut down and removed. Nothing in this repo connects to them; this is the complete, final dataset.
+
+| Total | Value |
+|---|---|
+| Events (all sources) | 9,899,436 |
+| Cowrie sessions | 428,996 (405,429 Telnet, 23,567 SSH) |
+| Unique attacker IPs | 1,417 on Cowrie, 3,284 on OpenCanary |
+| Download attempts | 205,453 (62,646 failed), 81 unique files |
+
+See `docs/FINAL_SUMMARY.md` for the final summary.
+
 ## Data sources (`data/`)
 | Source | Path |
 |---|---|
 | Pre-Cowrie snapshot (OpenCanary only, before Cowrie went in) | `data/vm/var/tmp/opencanary.log.snapshot-pre-cowrie` |
 | Live OpenCanary log | `data/vm/var/tmp/opencanary.log.gz` |
 | Cowrie JSON logs (native, daily rotated) | `data/vm/opt/cowrie/cowrie/var/log/cowrie/cowrie.json*` |
-| Cowrie events converted to OpenCanary format | `data/vm/var/tmp/cowrie-canary.log.gz.part00`, `.part01` (split, gzipped) |
+| Cowrie events converted to OpenCanary format | `data/vm/var/tmp/cowrie-canary.log.gz.part00`–`.part02` (split, gzipped) |
 | Cowrie TTY session recordings | `data/vm/opt/cowrie/cowrie/var/lib/cowrie/tty/` |
 | Cowrie config, fake filesystem (honeyfs), adaptive personas | `data/vm/opt/cowrie/cowrie/etc/`, `data/vm/opt/cowrie/personas/` |
 | OpenCanary/Cowrie config (reference text only), watchdog and admin logs | `data/vm/etc/`, `data/vm/opt/cowrie/cowrie/etc/*.reference.txt`, `data/vm/var/log/` |
